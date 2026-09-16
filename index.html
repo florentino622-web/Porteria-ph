@@ -176,6 +176,7 @@
   .result.warn .result-title{color:var(--warn);}
   .result.bad .result-title{color:var(--danger);}
   .result-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;}
+  .result-note{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-style:italic;color:var(--text-dim);}
   .result-grid dt{color:var(--text-faint);}
   .result-grid dd{margin:0;font-family:var(--mono);}
 
@@ -231,6 +232,7 @@
   .badge.inquilino{background:rgba(79,209,165,0.15);color:var(--accent);}
   .badge.visitante{background:rgba(240,170,92,0.15);color:var(--warn);}
   .person-dates{font-size:12px;color:var(--text-faint);margin-top:8px;font-family:var(--mono);}
+  .person-desc{font-size:12.5px;color:var(--text-dim);margin-top:6px;font-style:italic;}
   .person-actions{display:flex;gap:14px;margin-top:10px;}
   .person-actions button{
     background:none;border:none;color:var(--text-faint);font-size:12.5px;
@@ -340,7 +342,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-cloud1</span></h1>
+    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-cloud2</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">Salir</button>
@@ -428,6 +430,10 @@
       </div>
     </div>
     <div class="err" id="errFechas">La fecha de fin debe ser posterior al inicio.</div>
+    <div class="field">
+      <label>Descripción adicional (opcional)</label>
+      <textarea id="fDescripcion" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 11px;color:var(--text);font-size:14.5px;font-family:var(--sans);resize:vertical;min-height:60px;" placeholder="Notas sobre esta persona..."></textarea>
+    </div>
     <div class="sheet-actions">
       <button class="btn-cancel" id="cancelBtn">Cancelar</button>
       <button class="btn-save" id="saveBtn">Guardar</button>
@@ -640,6 +646,7 @@ function runVerify(){
         <dt>Desde</dt><dd>${fmtDate(p.fecha_inicio)}</dd>
         <dt>Hasta</dt><dd>${fmtDate(p.fecha_fin)}</dd>
       </div>
+      ${p.descripcion ? `<div class="result-note">"${escapeHtml(p.descripcion)}"</div>` : ''}
     </div>`;
 }
 
@@ -843,6 +850,9 @@ function renderList(){
     const dates = p.tipo === 'visitante'
       ? `<div class="person-dates">Estadía: ${fmtDate(p.fecha_inicio)} → ${fmtDate(p.fecha_fin)}</div>`
       : '';
+    const descripcion = p.descripcion
+      ? `<div class="person-desc">"${escapeHtml(p.descripcion)}"</div>`
+      : '';
     const avatar = p.foto
       ? `<img class="avatar" src="${p.foto}" alt="">`
       : `<div class="avatar-placeholder">${escapeHtml(iniciales(p.nombre))}</div>`;
@@ -859,6 +869,7 @@ function renderList(){
           ${badge}
         </div>
         ${dates}
+        ${descripcion}
         <div class="person-actions">
           <button data-edit="${escapeHtml(p.cedula)}">Editar</button>
           <button class="danger" data-del="${escapeHtml(p.cedula)}">Eliminar</button>
@@ -904,6 +915,7 @@ function openAdd(){
   $('fApto').value = '';
   $('fInicio').value = todayISO();
   $('fFin').value = '';
+  $('fDescripcion').value = '';
   setPhotoPreview(null);
   clearErrors();
   setType('inquilino');
@@ -921,6 +933,7 @@ function openEdit(cedula){
   $('fApto').value = p.apartamento;
   $('fInicio').value = p.fecha_inicio || todayISO();
   $('fFin').value = p.fecha_fin || '';
+  $('fDescripcion').value = p.descripcion || '';
   setPhotoPreview(p.foto || null);
   clearErrors();
   setType(p.tipo);
@@ -970,7 +983,8 @@ $('saveBtn').addEventListener('click', async ()=>{
     tipo: currentType,
     fecha_inicio: currentType === 'visitante' ? (inicio || todayISO()) : null,
     fecha_fin: currentType === 'visitante' ? (fin || null) : null,
-    foto: currentPhoto || null
+    foto: currentPhoto || null,
+    descripcion: $('fDescripcion').value.trim() || null
   };
 
   $('saveBtn').disabled = true;
