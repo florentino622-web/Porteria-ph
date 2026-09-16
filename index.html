@@ -69,6 +69,11 @@
     font-family:var(--mono);
     text-shadow: 0 1px 6px rgba(0,0,0,0.5);
   }
+  .masthead-right{display:flex;align-items:center;gap:10px;}
+  .logout-btn{
+    background:none;border:1px solid var(--line);color:var(--text-dim);
+    border-radius:7px;padding:4px 10px;font-size:11.5px;font-weight:600;cursor:pointer;
+  }
 
   /* Tabs */
   .tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--surface);padding:4px;border-radius:10px;}
@@ -295,13 +300,51 @@
     transition:opacity 0.25s;z-index:30;
   }
   .toast.show{opacity:1;}
+
+  .login-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .login-box{
+    width:100%;max-width:360px;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:26px 22px;
+  }
+  .login-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+  .login-sub{font-size:13px;color:var(--text-faint);margin-bottom:18px;}
+  .login-btn{
+    width:100%;margin-top:6px;padding:12px;border-radius:9px;border:none;
+    background:var(--accent);color:#0B1712;font-weight:700;font-size:14.5px;cursor:pointer;
+  }
+  .login-hint{font-size:11.5px;color:var(--text-faint);margin-top:14px;text-align:center;}
+  #loginError{margin-bottom:8px;}
 </style>
 </head>
 <body>
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-title">🏖️ Portería</div>
+    <div class="login-sub">Acceso del personal de portería</div>
+    <div class="field">
+      <label>Correo</label>
+      <input type="email" id="loginEmail" autocomplete="username" placeholder="portero@tuedificio.com">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
+    </div>
+    <div class="err show" id="loginError" style="display:none;"></div>
+    <button id="loginBtn" class="login-btn">Entrar</button>
+    <div class="login-hint">Usa el mismo correo y contraseña en todos los dispositivos de la portería.</div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">🏖️ v-foto1</span></h1>
-    <span class="sub" id="totalCount">— registros</span>
+    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-cloud1</span></h1>
+    <div class="masthead-right">
+      <span class="sub" id="totalCount">— registros</span>
+      <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">Salir</button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -423,37 +466,100 @@
 </div>
 
 <div class="toast" id="toast"></div>
+</div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const STORAGE_KEY = 'registro-personas';
+// ============================================================
+// CONFIGURACIÓN DE FIREBASE — pega aquí los datos de tu proyecto
+// (Firebase console → ⚙️ Configuración del proyecto → tus apps → Config)
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAu2hx39Vk_U8Cs99HH80o8c9_xONfNYfM",
+  authDomain: "porteria-ph.firebaseapp.com",
+  projectId: "porteria-ph",
+  storageBucket: "porteria-ph.firebasestorage.app",
+  messagingSenderId: "437226737333",
+  appId: "1:437226737333:web:63ead0873399b5806078fc"
+};
+
+firebase.initializeApp(firebaseConfig);
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const personasRef = db.collection('personas');
+
+const $ = (id) => document.getElementById(id);
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+let unsubscribePersonas = null;
+
+auth.onAuthStateChanged((user)=>{
+  if(user){
+    $('loginScreen').style.display = 'none';
+    $('appRoot').style.display = 'block';
+    startPeopleListener();
+  }else{
+    if(unsubscribePersonas){ unsubscribePersonas(); unsubscribePersonas = null; }
+    $('appRoot').style.display = 'none';
+    $('loginScreen').style.display = 'flex';
+  }
+});
+
+$('loginBtn').addEventListener('click', doLogin);
+$('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+$('logoutBtn').addEventListener('click', ()=> auth.signOut());
+
+function doLogin(){
+  const email = $('loginEmail').value.trim();
+  const pass = $('loginPassword').value;
+  const errBox = $('loginError');
+  errBox.style.display = 'none';
+  if(!email || !pass){
+    errBox.textContent = 'Escribe el correo y la contraseña.';
+    errBox.style.display = 'block';
+    return;
+  }
+  $('loginBtn').textContent = 'Entrando...';
+  $('loginBtn').disabled = true;
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch((err)=>{
+      errBox.textContent = 'Correo o contraseña incorrectos.';
+      errBox.style.display = 'block';
+    })
+    .finally(()=>{
+      $('loginBtn').textContent = 'Entrar';
+      $('loginBtn').disabled = false;
+    });
+}
+
 let people = [];
 let editingCedula = null;
 let currentType = 'inquilino';
 let currentPhoto = null;
 
-const $ = (id) => document.getElementById(id);
-
-function todayISO(){ return new Date().toISOString().slice(0,10); }
-
-async function loadPeople(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    people = raw ? JSON.parse(raw) : [];
-  }catch(e){
-    people = [];
-  }
-  renderList();
-  updateCount();
+function startPeopleListener(){
+  if(unsubscribePersonas) return;
+  unsubscribePersonas = personasRef.onSnapshot((snapshot)=>{
+    people = snapshot.docs.map(d => ({ cedula: d.id, ...d.data() }));
+    renderList();
+    updateCount();
+  }, (err)=>{
+    showToast('No se pudo conectar con la base de datos.');
+  });
 }
 
-async function savePeople(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
-  }catch(e){
-    showToast('No se pudo guardar. Intenta de nuevo.');
-  }
+async function upsertPersona(record){
+  const { cedula, ...data } = record;
+  await personasRef.doc(cedula).set(data);
+}
+
+async function deletePersonaRemote(cedula){
+  await personasRef.doc(cedula).delete();
 }
 
 function updateCount(){
@@ -771,11 +877,12 @@ function renderList(){
 $('searchInput').addEventListener('input', renderList);
 
 async function deletePerson(cedula){
-  people = people.filter(p=>p.cedula !== cedula);
-  await savePeople();
-  renderList();
-  updateCount();
-  showToast('Registro eliminado.');
+  try{
+    await deletePersonaRemote(cedula);
+    showToast('Registro eliminado.');
+  }catch(e){
+    showToast('No se pudo eliminar. Revisa tu conexión.');
+  }
 }
 
 // ---- Modal ----
@@ -866,17 +973,15 @@ $('saveBtn').addEventListener('click', async ()=>{
     foto: currentPhoto || null
   };
 
-  if(editingCedula){
-    const idx = people.findIndex(p=>p.cedula === editingCedula);
-    if(idx > -1) people[idx] = record;
-  } else {
-    people.push(record);
+  $('saveBtn').disabled = true;
+  try{
+    await upsertPersona(record);
+    closeSheet();
+    showToast(editingCedula ? 'Registro actualizado.' : 'Registro creado.');
+  }catch(e){
+    showToast('No se pudo guardar. Revisa tu conexión.');
   }
-  await savePeople();
-  renderList();
-  updateCount();
-  closeSheet();
-  showToast(editingCedula ? 'Registro actualizado.' : 'Registro creado.');
+  $('saveBtn').disabled = false;
 });
 
 // ---- Importar Excel / CSV ----
@@ -940,6 +1045,10 @@ $('fileInput').addEventListener('change', async (e)=>{
 async function processImportedRows(rows){
   let added = 0, updated = 0;
   const errores = [];
+  const existingCedulas = new Set(people.map(p=>p.cedula));
+  const existingFotos = Object.fromEntries(people.map(p=>[p.cedula, p.foto || null]));
+
+  const validRecords = [];
 
   rows.forEach((row, i) => {
     const mapped = {};
@@ -960,7 +1069,7 @@ async function processImportedRows(rows){
       return;
     }
 
-    const idx = people.findIndex(p=>p.cedula === cedula);
+    const existed = existingCedulas.has(cedula);
     const record = {
       cedula,
       nombre,
@@ -968,18 +1077,28 @@ async function processImportedRows(rows){
       tipo,
       fecha_inicio: tipo === 'visitante' ? (toISODate(mapped.fecha_inicio) || todayISO()) : null,
       fecha_fin: tipo === 'visitante' ? toISODate(mapped.fecha_fin) : null,
-      foto: idx > -1 ? (people[idx].foto || null) : null
+      foto: existed ? (existingFotos[cedula] || null) : null
     };
 
-    if(idx > -1){ people[idx] = record; updated++; }
-    else { people.push(record); added++; }
+    validRecords.push(record);
+    if(existed){ updated++; } else { added++; existingCedulas.add(cedula); }
   });
 
-  if(added + updated > 0){
-    await savePeople();
-    renderList();
-    updateCount();
+  // Firestore permite máximo 500 operaciones por batch; se divide en bloques.
+  for(let i = 0; i < validRecords.length; i += 400){
+    const chunk = validRecords.slice(i, i + 400);
+    const batch = db.batch();
+    chunk.forEach(rec=>{
+      const { cedula, ...data } = rec;
+      batch.set(personasRef.doc(cedula), data);
+    });
+    try{
+      await batch.commit();
+    }catch(e){
+      errores.push('Error al guardar un bloque de registros. Revisa tu conexión e intenta de nuevo.');
+    }
   }
+
   renderImportSummary(added, updated, errores);
 }
 
@@ -1010,8 +1129,6 @@ $('downloadTemplateBtn').addEventListener('click', ()=>{
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
-
-loadPeople();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
