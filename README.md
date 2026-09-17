@@ -161,6 +161,25 @@ No requiere ningún cambio de Firebase — solo sube el `index.html` nuevo.
 
 ---
 
+## Corrección v-unif8 — La cámara abría pero no detectaba el QR
+
+Después de arreglar la carga de la librería, la cámara ya abría bien pero el lector genérico en
+JavaScript (jsQR) es poco confiable en condiciones reales (distancia, enfoque, brillo de pantalla).
+
+Se agregó el **lector nativo de códigos del propio navegador** (disponible en la mayoría de
+Android con Chrome actualizado), que es mucho más preciso y rápido — jsQR queda solo como
+respaldo por si un dispositivo no lo soporta. También se mejoró la calidad de video solicitada
+a la cámara y se activa enfoque continuo cuando el dispositivo lo permite.
+
+**Consejos si aún cuesta leer un código:**
+- Que el código QR ocupe buena parte del recuadro (ni muy lejos ni pegado a la cámara).
+- Buena luz, evitando reflejos si el QR se muestra en otra pantalla.
+- Si el QR es de otro celular, aumentar el brillo de esa pantalla ayuda bastante.
+
+No requiere ningún cambio de Firebase — solo sube el `index.html` nuevo.
+
+---
+
 ## Novedades v-unif6 — Saldo Pendiente
 
 - El **Administrador** tiene una pestaña nueva, **"Saldos"** (Portería no la ve — solo consulta).

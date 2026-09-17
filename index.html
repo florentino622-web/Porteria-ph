@@ -481,7 +481,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif7</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif8</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -1501,27 +1501,58 @@ function extractCedula(text){
 async function openQrScanner(){
   $('scanHint').textContent = 'Apunta al código QR del visitante';
   $('qrOverlay').classList.add('open');
-  if(!window.jsQR){
+  if(!window.jsQR && !nativeBarcodeDetector){
     $('scanHint').textContent = 'No se pudo cargar el lector de QR. Revisa tu conexión a internet e inténtalo de nuevo.';
     return;
   }
   try{
     qrStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
     });
     const video = $('qrVideo');
     video.srcObject = qrStream;
     await video.play();
+    // Enfoque continuo si el dispositivo lo soporta (mejora mucho la lectura de cerca)
+    try{
+      const [track] = qrStream.getVideoTracks();
+      const caps = track.getCapabilities && track.getCapabilities();
+      if(caps && caps.focusMode && caps.focusMode.includes('continuous')){
+        await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+      }
+    }catch(e){ /* no soportado, seguir sin esto */ }
     qrRafId = requestAnimationFrame(scanFrame);
   }catch(err){
     $('scanHint').textContent = 'No se pudo acceder a la cámara. Revisa los permisos del navegador.';
   }
 }
 
-function scanFrame(){
+let nativeBarcodeDetector = null;
+if('BarcodeDetector' in window){
+  try{ nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); }catch(e){ nativeBarcodeDetector = null; }
+}
+
+async function scanFrame(){
   const video = $('qrVideo');
-  const canvas = $('qrCanvas');
   if(video.readyState === video.HAVE_ENOUGH_DATA){
+    // 1) Lector nativo del navegador (más preciso y rápido cuando existe)
+    if(nativeBarcodeDetector){
+      try{
+        const results = await nativeBarcodeDetector.detect(video);
+        if(results && results.length > 0 && results[0].rawValue){
+          const cedula = extractCedula(results[0].rawValue);
+          $('verifyInput').value = cedula;
+          closeQrScanner();
+          runVerify();
+          return;
+        }
+      }catch(e){ /* si falla, cae al lector de respaldo abajo */ }
+    }
+    // 2) Respaldo: lector en JavaScript puro (jsQR)
+    const canvas = $('qrCanvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
