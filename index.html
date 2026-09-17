@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portería · Control de Acceso</title>
+<title>Portería · App Unificada</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#161B26">
 <link rel="icon" href="icon-192.png">
@@ -22,6 +22,7 @@
     --text-dim: #9AA4BC;
     --text-faint: #6B7590;
     --accent: #4FD1A5;
+    --accent-owner: #F0A868;
     --accent-dim: #2C6B54;
     --warn: #F0AA5C;
     --warn-dim: #6E4F26;
@@ -77,12 +78,12 @@
 
   /* Tabs */
   .tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--surface);padding:4px;border-radius:10px;}
-  .tab{
+  .tab, .otab{
     flex:1;text-align:center;padding:9px 8px;border-radius:7px;
     font-size:13.5px;font-weight:600;color:var(--text-dim);cursor:pointer;
     border:none;background:transparent;font-family:var(--sans);
   }
-  .tab.active{background:var(--surface-2);color:var(--text);}
+  .tab.active, .otab.active{background:var(--surface-2);color:var(--text);}
 
   section{display:none;}
   section.active{display:block;}
@@ -318,13 +319,46 @@
   }
   .login-hint{font-size:11.5px;color:var(--text-faint);margin-top:14px;text-align:center;}
   #loginError{margin-bottom:8px;}
+
+  .role-btn{
+    width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:11px;padding:14px 16px;margin-top:10px;cursor:pointer;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .role-btn:active{transform:translateY(1px);}
+  .role-btn-title{color:var(--text);font-size:15px;font-weight:700;}
+  .role-btn-sub{color:var(--text-faint);font-size:12px;}
+  .back-link{
+    display:block;width:100%;background:none;border:none;color:var(--text-faint);
+    font-size:12.5px;font-weight:600;margin-top:16px;cursor:pointer;text-align:center;
+  }
+  .mono-input{font-family:var(--mono);}
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login-screen">
-  <div class="login-box">
+<div id="roleScreen" class="login-screen">
+  <div class="login-box" style="max-width:380px;">
     <div class="login-title">🏖️ Portería</div>
-    <div class="login-sub">Acceso del personal de portería</div>
+    <div class="login-sub">¿Cómo vas a entrar?</div>
+    <button class="role-btn" data-role="staff">
+      <span class="role-btn-title">Portería</span>
+      <span class="role-btn-sub">Verificar y administrar el registro</span>
+    </button>
+    <button class="role-btn" data-role="admin">
+      <span class="role-btn-title">Administrador</span>
+      <span class="role-btn-sub">Corregir cualquier registro</span>
+    </button>
+    <button class="role-btn" data-role="owner">
+      <span class="role-btn-title">Propietario</span>
+      <span class="role-btn-sub">Registrar mis visitantes</span>
+    </button>
+  </div>
+</div>
+
+<div id="loginScreen" class="login-screen" style="display:none;">
+  <div class="login-box">
+    <div class="login-title" id="loginTitleText">🏖️ Portería</div>
+    <div class="login-sub" id="loginSubText">Acceso del personal de portería</div>
     <div class="field">
       <label>Correo</label>
       <input type="email" id="loginEmail" autocomplete="username" placeholder="portero@tuedificio.com">
@@ -336,13 +370,27 @@
     <div class="err show" id="loginError" style="display:none;"></div>
     <button id="loginBtn" class="login-btn">Entrar</button>
     <div class="login-hint">Usa el mismo correo y contraseña en todos los dispositivos de la portería.</div>
+    <button id="backFromLoginBtn" class="back-link">← Elegir otra opción</button>
+  </div>
+</div>
+
+<div id="ownerSetupScreen" class="login-screen" style="display:none;">
+  <div class="login-box">
+    <div class="login-title">🏖️ Propietario</div>
+    <div class="login-sub">¿Cuál es tu apartamento?</div>
+    <div class="field">
+      <label>Número de apartamento</label>
+      <input type="text" class="mono-input" id="ownerAptoInput" placeholder="Ej. 502">
+    </div>
+    <button id="ownerContinueBtn" class="login-btn">Continuar</button>
+    <button id="backFromOwnerBtn" class="back-link">← Elegir otra opción</button>
   </div>
 </div>
 
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-cloud2</span></h1>
+    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif1</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">Salir</button>
@@ -471,7 +519,105 @@
   </div>
 </div>
 
+</div>
+
+<div id="ownerRoot" style="display:none;">
+<div id="ownerApp">
+  <div class="masthead">
+    <h1>Visitantes <span style="font-size:11px;font-weight:600;color:#F0A868;">🏖️</span></h1>
+    <div class="masthead-right">
+      <span class="sub" id="ownerAptoChip"></span>
+      <button id="ownerLogoutBtn" class="logout-btn" title="Salir">Salir</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="otab active" data-ownertab="nuevo">Nuevo</button>
+    <button class="otab" data-ownertab="misvisitantes">Mis visitantes</button>
+  </div>
+
+  <section id="ownertab-nuevo" class="active">
+    <div id="ownerFormScreen">
+      <div class="card" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;">
+        <div class="field">
+          <label>Nombre completo del visitante</label>
+          <input type="text" id="vNombre" placeholder="Nombre y apellido">
+          <div class="err" id="errNombre">Escribe el nombre del visitante.</div>
+        </div>
+        <div class="field">
+          <label>Cédula</label>
+          <input type="text" class="mono-input" id="vCedula" inputmode="numeric" placeholder="Número de identificación">
+          <div class="err" id="errCedula">Escribe la cédula.</div>
+        </div>
+        <div class="date-row" style="display:flex;gap:10px;">
+          <div class="field" style="flex:1;">
+            <label>Desde</label>
+            <input type="date" id="vInicio">
+          </div>
+          <div class="field" style="flex:1;">
+            <label>Hasta</label>
+            <input type="date" id="vFin">
+          </div>
+        </div>
+        <div class="err" id="errFechas">La fecha final debe ser posterior a la inicial.</div>
+        <div class="field">
+          <label>Foto (documento o rostro del visitante, opcional)</label>
+          <div class="photo-field">
+            <img id="ownerPhotoPreview" class="photo-preview" style="display:none;" alt="Foto">
+            <div id="ownerPhotoPlaceholder" class="photo-placeholder">Sin foto</div>
+            <div class="photo-buttons">
+              <button type="button" id="ownerTakePhotoBtn">Tomar foto</button>
+              <button type="button" id="ownerPickPhotoBtn">Galería</button>
+              <button type="button" id="ownerRemovePhotoBtn" style="display:none;color:var(--danger);">Quitar</button>
+            </div>
+          </div>
+          <input type="file" id="ownerPhotoGallery" accept="image/*" style="display:none;">
+        </div>
+        <div class="field">
+          <label>Descripción adicional (opcional)</label>
+          <textarea id="vDescripcion" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--text);font-size:15px;font-family:var(--sans);resize:vertical;min-height:70px;" placeholder="Ej. Viene por evento familiar..."></textarea>
+        </div>
+        <button id="generarBtn" class="btn-primary" style="width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:15px;cursor:pointer;">Generar código QR</button>
+      </div>
+      <div class="hint" style="font-size:12px;color:var(--text-faint);margin-top:14px;text-align:center;line-height:1.5;">El código QR se genera con la cédula del visitante. Envíaselo por WhatsApp — al llegar, lo muestra en portería para ingresar más rápido.</div>
+    </div>
+
+    <div id="ownerResultScreen" style="display:none;text-align:center;">
+      <div class="result-card" style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 20px;">
+        <div class="result-check" style="width:46px;height:46px;border-radius:50%;background:rgba(79,209,165,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--ok);font-size:22px;font-weight:700;">✓</div>
+        <div class="result-name" id="resNombre" style="font-size:18px;font-weight:700;margin-bottom:2px;"></div>
+        <div class="result-sub" id="resApto" style="font-size:13px;color:var(--text-dim);margin-bottom:18px;font-family:var(--mono);"></div>
+        <div id="qrCanvasHolder" style="display:inline-block;background:#fff;padding:14px;border-radius:14px;margin-bottom:16px;"></div>
+        <div class="result-details" style="text-align:left;background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;">
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Cédula</span><span id="resCedula" style="font-family:var(--mono);"></span></div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Desde</span><span id="resInicio" style="font-family:var(--mono);"></span></div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Hasta</span><span id="resFin" style="font-family:var(--mono);"></span></div>
+        </div>
+        <div class="btn-row" style="display:flex;gap:10px;">
+          <button id="downloadBtn" class="btn-secondary" style="flex:1;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;">Descargar</button>
+          <button id="shareBtn" class="btn-primary" style="flex:1;padding:12px;border-radius:9px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:14px;cursor:pointer;">Compartir</button>
+        </div>
+        <button id="nuevoBtn" class="btn-secondary" style="width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;margin-top:10px;">Registrar otro visitante</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="ownertab-misvisitantes">
+    <div id="misVisitantesList"></div>
+  </section>
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<div class="overlay" id="ownerPhotoOverlay">
+  <div class="scan-sheet">
+    <div class="scan-head"><span>Tomar foto</span><button id="ownerPhotoCloseBtn" class="scan-close">Cancelar</button></div>
+    <div class="scan-frame"><video id="ownerPhotoVideo" playsinline autoplay muted></video></div>
+    <div class="scan-hint" id="ownerPhotoHint">Encuadra y toca "Capturar"</div>
+    <button id="ownerCapturePhotoBtn" class="btn-capture">Capturar</button>
+    <canvas id="ownerPhotoCanvas" style="display:none;"></canvas>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -479,19 +625,19 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ============================================================
 // CONFIGURACIÓN DE FIREBASE — pega aquí los datos de tu proyecto
 // (Firebase console → ⚙️ Configuración del proyecto → tus apps → Config)
 // ============================================================
 const firebaseConfig = {
-apiKey: "AIzaSyBng8yvusfVmrVDROleUiS4KuLIPgNu9Nc",
-  authDomain: "porteria-ph-f3ea9.firebaseapp.com",
-  projectId: "porteria-ph-f3ea9",
-  storageBucket: "porteria-ph-f3ea9.firebasestorage.app",
-  messagingSenderId: "828358977802",
-  appId: "1:828358977802:web:762ad1705ab01ebe6772f3"
-  
+  apiKey: "AIzaSyAu2hx39Vk_U8Cs99HH80o8c9_xONfNYfM",
+  authDomain: "porteria-ph.firebaseapp.com",
+  projectId: "porteria-ph",
+  storageBucket: "porteria-ph.firebasestorage.app",
+  messagingSenderId: "437226737333",
+  appId: "1:437226737333:web:63ead0873399b5806078fc"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -504,22 +650,122 @@ const $ = (id) => document.getElementById(id);
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 
 let unsubscribePersonas = null;
+let unsubscribeMisVisitantes = null;
+const ROLE_KEY = 'app-role';
+const OWNER_APTO_KEY = 'mi-apartamento';
+
+function getSavedRole(){ return localStorage.getItem(ROLE_KEY) || ''; }
+function setSavedRole(r){ localStorage.setItem(ROLE_KEY, r); }
+function getOwnerApto(){ return localStorage.getItem(OWNER_APTO_KEY) || ''; }
+function setOwnerApto(v){ localStorage.setItem(OWNER_APTO_KEY, v); }
+
+function hideAllScreens(){
+  ['roleScreen','loginScreen','ownerSetupScreen','appRoot','ownerRoot'].forEach(id=>{
+    $(id).style.display = 'none';
+  });
+}
+
+function showRoleScreen(){
+  hideAllScreens();
+  $('roleScreen').style.display = 'flex';
+}
+
+document.querySelectorAll('.role-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const role = btn.dataset.role; // 'staff' | 'admin' | 'owner'
+    if(role === 'owner'){
+      setSavedRole('owner');
+      hideAllScreens();
+      if(getOwnerApto()){
+        signInOwner();
+      }else{
+        $('ownerSetupScreen').style.display = 'flex';
+      }
+    }else{
+      setSavedRole('staff');
+      hideAllScreens();
+      $('loginTitleText').textContent = role === 'admin' ? '🏖️ Administrador' : '🏖️ Portería';
+      $('loginSubText').textContent = role === 'admin'
+        ? 'Acceso de administración — corrige cualquier registro'
+        : 'Acceso del personal de portería';
+      $('loginScreen').style.display = 'flex';
+    }
+  });
+});
+
+$('backFromLoginBtn').addEventListener('click', ()=>{
+  localStorage.removeItem(ROLE_KEY);
+  showRoleScreen();
+});
+$('backFromOwnerBtn').addEventListener('click', ()=>{
+  localStorage.removeItem(ROLE_KEY);
+  showRoleScreen();
+});
+
+$('ownerContinueBtn').addEventListener('click', ()=>{
+  const v = $('ownerAptoInput').value.trim();
+  if(!v){ showToast('Escribe tu número de apartamento.'); return; }
+  setOwnerApto(v);
+  signInOwner();
+});
+
+async function signInOwner(){
+  try{
+    await auth.signInAnonymously();
+  }catch(e){
+    showToast('No se pudo conectar. Revisa tu internet.');
+  }
+}
+
+$('ownerLogoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem(ROLE_KEY);
+  auth.signOut();
+});
 
 auth.onAuthStateChanged((user)=>{
   if(user){
-    $('loginScreen').style.display = 'none';
-    $('appRoot').style.display = 'block';
-    startPeopleListener();
+    const isAnonymous = user.isAnonymous;
+    const role = getSavedRole();
+    if(isAnonymous && role === 'owner'){
+      hideAllScreens();
+      $('ownerRoot').style.display = 'block';
+      $('ownerAptoChip').textContent = 'Apto ' + getOwnerApto();
+      startMisVisitantesListener();
+    }else if(!isAnonymous && role === 'staff'){
+      hideAllScreens();
+      $('appRoot').style.display = 'block';
+      startPeopleListener();
+    }else{
+      // Sesión de un rol que ya no corresponde (p.ej. quedó una sesión anónima
+      // vieja pero ahora se quiere entrar como portería): cerrar y mostrar rol.
+      auth.signOut();
+      showRoleScreen();
+    }
   }else{
     if(unsubscribePersonas){ unsubscribePersonas(); unsubscribePersonas = null; }
-    $('appRoot').style.display = 'none';
-    $('loginScreen').style.display = 'flex';
+    if(unsubscribeMisVisitantes){ unsubscribeMisVisitantes(); unsubscribeMisVisitantes = null; }
+    hideAllScreens();
+    const role = getSavedRole();
+    if(role === 'owner'){
+      if(getOwnerApto()){
+        signInOwner();
+      }else{
+        $('ownerSetupScreen').style.display = 'flex';
+      }
+    }else if(role === 'staff'){
+      $('loginScreen').style.display = 'flex';
+    }else{
+      showRoleScreen();
+    }
   }
 });
 
 $('loginBtn').addEventListener('click', doLogin);
 $('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-$('logoutBtn').addEventListener('click', ()=> auth.signOut());
+$('logoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem(ROLE_KEY);
+  auth.signOut();
+});
 
 function doLogin(){
   const email = $('loginEmail').value.trim();
@@ -1144,6 +1390,298 @@ $('downloadTemplateBtn').addEventListener('click', ()=>{
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
+
+// ============================================================
+// LÓGICA DE PROPIETARIO (Visitantes)
+// ============================================================
+$('vInicio').value = todayISO();
+
+let ownerCurrentPhoto = null;
+let ownerPhotoStream = null;
+let lastOwnerRecord = null;
+let editingOwnerCedula = null;
+
+function ownerSetPhotoPreview(dataUrl){
+  ownerCurrentPhoto = dataUrl;
+  const img = $('ownerPhotoPreview');
+  const placeholder = $('ownerPhotoPlaceholder');
+  const removeBtn = $('ownerRemovePhotoBtn');
+  if(dataUrl){
+    img.src = dataUrl; img.style.display = 'block';
+    placeholder.style.display = 'none';
+    removeBtn.style.display = 'inline-block';
+  }else{
+    img.style.display = 'none';
+    placeholder.style.display = 'flex';
+    removeBtn.style.display = 'none';
+  }
+}
+
+function compressImageFile(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Imagen inválida.'));
+      img.onload = () => {
+        const MAX = 300;
+        let { width, height } = img;
+        if(width > height && width > MAX){ height = Math.round(height * MAX / width); width = MAX; }
+        else if(height > MAX){ width = Math.round(width * MAX / height); height = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+$('ownerPickPhotoBtn').addEventListener('click', ()=> $('ownerPhotoGallery').click());
+$('ownerPhotoGallery').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{ ownerSetPhotoPreview(await compressImageFile(file)); }
+  catch(err){ showToast('No se pudo procesar la foto.'); }
+  e.target.value = '';
+});
+$('ownerRemovePhotoBtn').addEventListener('click', ()=> ownerSetPhotoPreview(null));
+
+async function openOwnerPhotoCamera(){
+  $('ownerPhotoHint').textContent = 'Encuadra y toca "Capturar"';
+  $('ownerPhotoOverlay').classList.add('open');
+  try{
+    ownerPhotoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    const video = $('ownerPhotoVideo');
+    video.srcObject = ownerPhotoStream;
+    await video.play();
+  }catch(err){
+    $('ownerPhotoHint').textContent = 'No se pudo acceder a la cámara. Revisa los permisos.';
+  }
+}
+function closeOwnerPhotoCamera(){
+  $('ownerPhotoOverlay').classList.remove('open');
+  if(ownerPhotoStream){ ownerPhotoStream.getTracks().forEach(t=>t.stop()); ownerPhotoStream = null; }
+}
+$('ownerTakePhotoBtn').addEventListener('click', openOwnerPhotoCamera);
+$('ownerPhotoCloseBtn').addEventListener('click', closeOwnerPhotoCamera);
+$('ownerCapturePhotoBtn').addEventListener('click', ()=>{
+  const video = $('ownerPhotoVideo');
+  if(!video.videoWidth) return;
+  const MAX = 300;
+  let width = video.videoWidth, height = video.videoHeight;
+  if(width > height && width > MAX){ height = Math.round(height * MAX / width); width = MAX; }
+  else if(height > MAX){ width = Math.round(width * MAX / height); height = MAX; }
+  const canvas = $('ownerPhotoCanvas');
+  canvas.width = width; canvas.height = height;
+  canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+  ownerSetPhotoPreview(canvas.toDataURL('image/jpeg', 0.7));
+  closeOwnerPhotoCamera();
+});
+
+// ---- Pestañas del propietario ----
+document.querySelectorAll('.otab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.otab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('#ownerApp > section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    $('ownertab-'+tab.dataset.ownertab).classList.add('active');
+  });
+});
+
+function ownerClearErrors(){
+  ['errNombre','errCedula','errFechas'].forEach(id=>$(id).classList.remove('show'));
+}
+
+function resetOwnerForm(){
+  $('vNombre').value = '';
+  $('vCedula').value = '';
+  $('vInicio').value = todayISO();
+  $('vFin').value = '';
+  $('vDescripcion').value = '';
+  ownerSetPhotoPreview(null);
+  ownerClearErrors();
+  editingOwnerCedula = null;
+  $('generarBtn').textContent = 'Generar código QR';
+}
+
+$('generarBtn').addEventListener('click', async ()=>{
+  ownerClearErrors();
+  const apto = getOwnerApto();
+  const nombre = $('vNombre').value.trim();
+  const cedula = $('vCedula').value.trim().replace(/\s+/g,'');
+  const inicio = $('vInicio').value || todayISO();
+  const fin = $('vFin').value;
+  const descripcion = $('vDescripcion').value.trim();
+
+  let hasError = false;
+  if(!nombre){ $('errNombre').classList.add('show'); hasError = true; }
+  if(!cedula){ $('errCedula').classList.add('show'); hasError = true; }
+  if(fin && fin < inicio){ $('errFechas').classList.add('show'); hasError = true; }
+  if(hasError) return;
+
+  const record = {
+    nombre,
+    apartamento: apto,
+    tipo: 'visitante',
+    fecha_inicio: inicio,
+    fecha_fin: fin || null,
+    descripcion: descripcion || null,
+    foto: ownerCurrentPhoto || null
+  };
+
+  $('generarBtn').disabled = true;
+  $('generarBtn').textContent = 'Guardando...';
+  try{
+    await personasRef.doc(cedula).set(record, { merge: true });
+    lastOwnerRecord = { cedula, ...record };
+    showOwnerResult(lastOwnerRecord);
+  }catch(e){
+    console.error(e);
+    if(e.code === 'permission-denied'){
+      showToast('Permiso denegado. Revisa las Reglas de Firestore.');
+    }else{
+      showToast('No se pudo registrar: ' + (e.code || e.message || 'error desconocido'));
+    }
+  }
+  $('generarBtn').disabled = false;
+  $('generarBtn').textContent = 'Generar código QR';
+});
+
+function showOwnerResult(rec){
+  $('ownerFormScreen').style.display = 'none';
+  $('ownerResultScreen').style.display = 'block';
+  $('resNombre').textContent = rec.nombre;
+  $('resApto').textContent = `Visita al apto ${rec.apartamento}`;
+  $('resCedula').textContent = rec.cedula;
+  $('resInicio').textContent = fmtDate(rec.fecha_inicio);
+  $('resFin').textContent = rec.fecha_fin ? fmtDate(rec.fecha_fin) : 'Sin definir';
+
+  const holder = $('qrCanvasHolder');
+  holder.innerHTML = '';
+  new QRCode(holder, {
+    text: rec.cedula, width: 220, height: 220,
+    colorDark: '#161B26', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+function getOwnerQrCanvas(){ return $('qrCanvasHolder').querySelector('canvas'); }
+
+$('downloadBtn').addEventListener('click', ()=>{
+  const canvas = getOwnerQrCanvas();
+  if(!canvas) return;
+  const link = document.createElement('a');
+  link.download = `QR-${lastOwnerRecord.nombre.replace(/\s+/g,'_')}.png`;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+$('shareBtn').addEventListener('click', async ()=>{
+  const canvas = getOwnerQrCanvas();
+  if(!canvas || !lastOwnerRecord) return;
+  const caption = `Hola ${lastOwnerRecord.nombre}, este es tu código QR para ingresar al apto ${lastOwnerRecord.apartamento}. Muéstralo en portería. Válido del ${fmtDate(lastOwnerRecord.fecha_inicio)} al ${lastOwnerRecord.fecha_fin ? fmtDate(lastOwnerRecord.fecha_fin) : 'sin definir'}.`;
+  canvas.toBlob(async (blob)=>{
+    const file = new File([blob], 'qr-visitante.png', { type: 'image/png' });
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      try{ await navigator.share({ files: [file], text: caption, title: 'Tu código de acceso' }); }
+      catch(e){ /* cancelado */ }
+    }else{
+      showToast('Tu navegador no permite compartir directo. Usa "Descargar".');
+    }
+  });
+});
+
+$('nuevoBtn').addEventListener('click', ()=>{
+  resetOwnerForm();
+  $('ownerResultScreen').style.display = 'none';
+  $('ownerFormScreen').style.display = 'block';
+});
+
+// ---- Mis visitantes ----
+function startMisVisitantesListener(){
+  if(unsubscribeMisVisitantes) return;
+  const apto = getOwnerApto();
+  unsubscribeMisVisitantes = personasRef
+    .where('tipo', '==', 'visitante')
+    .where('apartamento', '==', apto)
+    .onSnapshot((snapshot)=>{
+      const visitantes = snapshot.docs.map(d => ({ cedula: d.id, ...d.data() }));
+      renderMisVisitantes(visitantes);
+    }, (err)=>{
+      showToast('No se pudo cargar tu lista de visitantes.');
+    });
+}
+
+function renderMisVisitantes(visitantes){
+  const box = $('misVisitantesList');
+  if(visitantes.length === 0){
+    box.innerHTML = `<div class="empty-hint">Todavía no has registrado visitantes.</div>`;
+    return;
+  }
+  visitantes.sort((a,b)=> (b.fecha_inicio||'').localeCompare(a.fecha_inicio||''));
+  box.innerHTML = visitantes.map(p=>{
+    const avatar = p.foto
+      ? `<img class="avatar" src="${p.foto}" alt="">`
+      : `<div class="avatar-placeholder">${escapeHtml(iniciales(p.nombre))}</div>`;
+    const descripcion = p.descripcion ? `<div class="person-desc">"${escapeHtml(p.descripcion)}"</div>` : '';
+    return `
+      <div class="person-card">
+        <div class="person-top">
+          <div class="person-left">
+            ${avatar}
+            <div>
+              <div class="person-name">${escapeHtml(p.nombre)}</div>
+              <div class="person-meta">CC ${escapeHtml(p.cedula)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="person-dates">Estadía: ${fmtDate(p.fecha_inicio)} → ${p.fecha_fin ? fmtDate(p.fecha_fin) : 'sin definir'}</div>
+        ${descripcion}
+        <div class="person-actions">
+          <button data-oedit="${escapeHtml(p.cedula)}">Editar</button>
+          <button class="danger" data-odel="${escapeHtml(p.cedula)}">Eliminar</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-oedit]').forEach(b=>{
+    b.addEventListener('click', ()=> openOwnerEdit(b.dataset.oedit, visitantes));
+  });
+  box.querySelectorAll('[data-odel]').forEach(b=>{
+    b.addEventListener('click', ()=> deleteOwnerVisitante(b.dataset.odel));
+  });
+}
+
+function openOwnerEdit(cedula, visitantes){
+  const p = visitantes.find(v=>v.cedula === cedula);
+  if(!p) return;
+  editingOwnerCedula = cedula;
+  $('vNombre').value = p.nombre;
+  $('vCedula').value = p.cedula;
+  $('vInicio').value = p.fecha_inicio || todayISO();
+  $('vFin').value = p.fecha_fin || '';
+  $('vDescripcion').value = p.descripcion || '';
+  ownerSetPhotoPreview(p.foto || null);
+  ownerClearErrors();
+  $('generarBtn').textContent = 'Guardar cambios';
+  document.querySelector('.otab[data-ownertab="nuevo"]').click();
+  $('ownerResultScreen').style.display = 'none';
+  $('ownerFormScreen').style.display = 'block';
+}
+
+async function deleteOwnerVisitante(cedula){
+  try{
+    await personasRef.doc(cedula).delete();
+    showToast('Visitante eliminado.');
+  }catch(e){
+    showToast('No se pudo eliminar. Revisa tu conexión.');
+  }
+}
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
