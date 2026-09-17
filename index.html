@@ -481,7 +481,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif6</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif7</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -752,7 +752,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -1501,6 +1501,10 @@ function extractCedula(text){
 async function openQrScanner(){
   $('scanHint').textContent = 'Apunta al código QR del visitante';
   $('qrOverlay').classList.add('open');
+  if(!window.jsQR){
+    $('scanHint').textContent = 'No se pudo cargar el lector de QR. Revisa tu conexión a internet e inténtalo de nuevo.';
+    return;
+  }
   try{
     qrStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'environment' }

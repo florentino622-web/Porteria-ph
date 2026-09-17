@@ -150,6 +150,17 @@ el `index.html` nuevo.
 
 ---
 
+## Corrección v-unif7 — El escáner QR no leía nada
+
+La librería usada para leer el código QR (`jsQR`) estaba cargándose desde una dirección que ya
+no existe, así que la cámara se abría pero nunca detectaba nada, sin mostrar ningún aviso de
+error. Se cambió a una dirección que sí funciona. Si en el futuro vuelve a fallar la carga, ahora
+la app muestra un mensaje claro en pantalla en vez de quedarse escaneando en silencio.
+
+No requiere ningún cambio de Firebase — solo sube el `index.html` nuevo.
+
+---
+
 ## Novedades v-unif6 — Saldo Pendiente
 
 - El **Administrador** tiene una pestaña nueva, **"Saldos"** (Portería no la ve — solo consulta).
