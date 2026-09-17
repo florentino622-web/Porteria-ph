@@ -2,8 +2,9 @@
 
 Una sola app con tres formas de entrar, según quién la use:
 
-- **Portería** — verificar personas (cédula o QR) y ver/corregir el registro completo.
-- **Administrador** — mismo acceso completo que portería, para corregir cualquier registro.
+- **Portería** — solo puede **consultar** (verificar por cédula o QR) quién trata de ingresar.
+  No ve la lista completa ni puede editar nada.
+- **Administrador** — acceso completo: verificar, ver todo el registro, y corregir cualquier dato.
 - **Propietario** — sin contraseña, solo su número de apartamento. Registra a sus visitantes,
   genera el QR para enviarles, y puede ver/editar/eliminar los que ya registró en "Mis visitantes".
 
@@ -109,3 +110,23 @@ quieres avanzar a esa versión.
 Esta app unificada reemplaza a las tres anteriores (`porteria-app-cloud`, `visitantes-inquilinos`).
 Puedes seguir usando las viejas si ya las tienes publicadas — comparten la misma base de datos,
 así que no hay conflicto — pero ya no hace falta mantener dos links distintos.
+
+---
+
+## Novedades de esta versión (v-unif3)
+
+- **Foto más grande y a la derecha** en las tarjetas de "Registro" y "Mis visitantes".
+- **Botón "Aa+"** (arriba, junto a ES/EN) para agrandar el texto en toda la app — útil para
+  personas con dificultad visual. Se activa por dispositivo, queda guardado.
+- **Varios apartamentos por propietario**: en "cambiar apartamento" ahora se pueden agregar
+  varios con el botón "+ Agregar otro apartamento". Si tienen más de uno, el formulario de
+  nuevo visitante muestra un selector para elegir a cuál apartamento pertenece cada visita, y
+  "Mis visitantes" trae los de todos sus apartamentos juntos.
+- **Español / Inglés**: botones ES/EN en cada pantalla. Cubre selección de rol, login,
+  configuración de propietario, formulario de visitante, resultados de verificación y los
+  botones principales. Algunos mensajes de error poco frecuentes (fallos puntuales de conexión)
+  siguen apareciendo solo en español.
+
+No se necesita ningún cambio de configuración de Firebase para esta actualización — solo sube
+el `index.html` nuevo.
+

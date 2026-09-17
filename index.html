@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portería · App Unificada</title>
+<title>El Palmar Residences</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#161B26">
 <link rel="icon" href="icon-192.png">
@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Portería">
+<meta name="apple-mobile-web-app-title" content="El Palmar">
 <style>
   :root{
     --bg: #161B26;
@@ -72,6 +72,20 @@
     font-family:var(--mono);
     text-shadow: 0 1px 6px rgba(0,0,0,0.5);
   }
+  .apto-chip-btn{
+    background:var(--accent-owner);
+    color:#241505;
+    border:none;
+    border-radius:20px;
+    padding:7px 14px;
+    font-size:12.5px;
+    font-weight:700;
+    font-family:var(--sans);
+    cursor:pointer;
+    text-shadow:none;
+    box-shadow:0 2px 8px rgba(240,168,104,0.35);
+  }
+  .apto-chip-btn:active{transform:translateY(1px);}
   .masthead-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
   .logout-btn{
     background:rgba(239,108,126,0.14);border:1px solid var(--danger);color:var(--danger);
@@ -168,7 +182,7 @@
   .result.bad{background:rgba(239,108,126,0.09);border-color:var(--danger-dim);}
   .result-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
   .result-photo{
-    width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;
+    width:96px;height:96px;border-radius:14px;object-fit:cover;flex-shrink:0;
     border:2px solid var(--line);
   }
   .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
@@ -363,6 +377,7 @@
   body.text-lg .person-meta{font-size:15px;}
   body.text-lg .person-dates, body.text-lg .person-desc{font-size:14.5px;}
   body.text-lg .result-title{font-size:18px;}
+  body.text-lg .result-photo{width:112px;height:112px;}
   body.text-lg .result-grid{font-size:16px;}
   body.text-lg .badge{font-size:13px;padding:4px 11px;}
   body.text-lg .verify-row input{font-size:18px;padding:14px;}
@@ -388,7 +403,7 @@
       <button class="pref-btn" id="langEnBtn" data-lang="en">EN</button>
       <button class="pref-btn" id="fontSizeBtn">Aa+</button>
     </div>
-    <div class="login-title" data-i18n="appTitle">🏖️ Portería</div>
+    <div class="login-title" data-i18n="appTitle">🏖️ El Palmar Residences</div>
     <div class="login-sub" data-i18n="roleQuestion">¿Cómo vas a entrar?</div>
     <button class="role-btn" data-role="concierge">
       <span class="role-btn-title" data-i18n="roleConciergeTitle">Portería</span>
@@ -448,7 +463,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif4</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif5</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -589,7 +604,7 @@
   <div class="masthead">
     <h1><span data-i18n="mastheadVisitantes">Visitantes</span> <span style="font-size:11px;font-weight:600;color:#F0A868;">🏖️</span></h1>
     <div class="masthead-right">
-      <span class="sub" id="ownerAptoChip"></span>
+      <button class="apto-chip-btn" id="ownerAptoChip" title="Cambiar apartamento(s)"></button>
       <div class="masthead-prefs">
         <button class="pref-btn" id="langEsBtnOwner" data-lang="es">ES</button>
         <button class="pref-btn" id="langEnBtnOwner" data-lang="en">EN</button>
@@ -726,7 +741,7 @@ function todayISO(){ return new Date().toISOString().slice(0,10); }
 // ============================================================
 const I18N = {
   es: {
-    appTitle: '🏖️ Portería',
+    appTitle: '🏖️ El Palmar Residences',
     loginTitlePorteria: '🏖️ Portería',
     loginTitleAdmin: '🏖️ Administrador',
     roleQuestion: '¿Cómo vas a entrar?',
@@ -802,7 +817,7 @@ const I18N = {
     visitanteExpired: 'Período de su estadía venció. ¡Gracias por su visita!'
   },
   en: {
-    appTitle: '🏖️ Front Desk',
+    appTitle: '🏖️ El Palmar Residences',
     loginTitlePorteria: '🏖️ Front Desk',
     loginTitleAdmin: '🏖️ Administrator',
     roleQuestion: 'How are you signing in?',
@@ -902,7 +917,7 @@ function applyLanguage(){
   // Refrescar textos generados dinámicamente que ya estén en pantalla
   if(typeof people !== 'undefined' && people.length){ renderList(); updateCount(); }
   if($('ownerAptoChip') && $('ownerAptoChip').textContent){
-    $('ownerAptoChip').textContent = t('aptoChipPrefix') + ' ' + getOwnerAptos().join(', ');
+    $('ownerAptoChip').textContent = '✎ ' + t('aptoChipPrefix') + ' ' + getOwnerAptos().join(', ');
   }
   if($('generarBtn')){
     try{ $('generarBtn').textContent = editingOwnerCedula ? t('saveChangesBtn') : t('generateQrBtn'); }
@@ -1017,7 +1032,7 @@ function showRoleScreen(){
 function showOwnerRootUI(){
   hideAllScreens();
   $('ownerRoot').style.display = 'block';
-  $('ownerAptoChip').textContent = (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
+  $('ownerAptoChip').textContent = '✎ ' + (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
   populateAptoSelect();
   startMisVisitantesListener();
 }

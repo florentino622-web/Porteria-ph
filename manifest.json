@@ -1,6 +1,6 @@
 {
-  "name": "Portería - App Unificada",
-  "short_name": "Portería",
+  "name": "El Palmar Residences",
+  "short_name": "El Palmar",
   "description": "Portería, administración y propietarios en una sola app",
   "start_url": "./index.html",
   "scope": "./",
