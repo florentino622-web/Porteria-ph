@@ -448,7 +448,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif3</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif4</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -1014,20 +1014,41 @@ function showRoleScreen(){
   $('roleScreen').style.display = 'flex';
 }
 
+function showOwnerRootUI(){
+  hideAllScreens();
+  $('ownerRoot').style.display = 'block';
+  $('ownerAptoChip').textContent = (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
+  populateAptoSelect();
+  startMisVisitantesListener();
+}
+
+function showStaffRootUI(role){
+  hideAllScreens();
+  $('appRoot').style.display = 'block';
+  applyStaffRoleUI(role);
+  startPeopleListener();
+}
+
 document.querySelectorAll('.role-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
+  btn.addEventListener('click', async ()=>{
     const role = btn.dataset.role; // 'concierge' | 'admin' | 'owner'
+    setSavedRole(role === 'owner' ? 'owner' : role);
+    hideAllScreens();
+
+    // Si ya había una sesión activa (de este mismo rol u otro), ciérrala primero.
+    // Así se garantiza que el flujo de abajo se ejecute siempre, sin depender
+    // de que Firebase dispare un nuevo aviso de cambio de sesión.
+    if(auth.currentUser){
+      try{ await auth.signOut(); }catch(e){}
+    }
+
     if(role === 'owner'){
-      setSavedRole('owner');
-      hideAllScreens();
       if(getOwnerAptos().length){
-        signInOwner();
+        await signInOwner();
       }else{
         openOwnerSetup();
       }
     }else{
-      setSavedRole(role); // 'concierge' o 'admin'
-      hideAllScreens();
       $('loginTitleText').textContent = role === 'admin' ? I18N[currentLang].loginTitleAdmin : I18N[currentLang].loginTitlePorteria;
       $('loginSubText').textContent = role === 'admin'
         ? I18N[currentLang].adminLoginSub
@@ -1037,21 +1058,25 @@ document.querySelectorAll('.role-btn').forEach(btn=>{
   });
 });
 
-$('backFromLoginBtn').addEventListener('click', ()=>{
+$('backFromLoginBtn').addEventListener('click', async ()=>{
   localStorage.removeItem(ROLE_KEY);
+  if(auth.currentUser){ try{ await auth.signOut(); }catch(e){} }
   showRoleScreen();
 });
-$('backFromOwnerBtn').addEventListener('click', ()=>{
+$('backFromOwnerBtn').addEventListener('click', async ()=>{
   localStorage.removeItem(ROLE_KEY);
+  if(auth.currentUser){ try{ await auth.signOut(); }catch(e){} }
   showRoleScreen();
 });
 
-$('ownerContinueBtn').addEventListener('click', ()=>{
+$('ownerContinueBtn').addEventListener('click', async ()=>{
   const values = collectAptoInputs().map(v=>v.trim()).filter(Boolean);
   const unique = [...new Set(values)];
   if(!unique.length){ showToast(I18N[currentLang].toastNoApto); return; }
   setOwnerAptos(unique);
-  signInOwner();
+  setSavedRole('owner');
+  await signInOwner();
+  showOwnerRootUI();
 });
 
 $('ownerAptoChip').addEventListener('click', ()=>{
@@ -1061,15 +1086,20 @@ $('ownerAptoChip').addEventListener('click', ()=>{
 
 async function signInOwner(){
   try{
-    await auth.signInAnonymously();
+    if(!auth.currentUser){
+      await auth.signInAnonymously();
+    }
   }catch(e){
     showToast('No se pudo conectar. Revisa tu internet.');
+    return;
   }
+  showOwnerRootUI();
 }
 
-$('ownerLogoutBtn').addEventListener('click', ()=>{
+$('ownerLogoutBtn').addEventListener('click', async ()=>{
   localStorage.removeItem(ROLE_KEY);
-  auth.signOut();
+  if(auth.currentUser){ try{ await auth.signOut(); }catch(e){} }
+  showRoleScreen();
 });
 
 auth.onAuthStateChanged((user)=>{
@@ -1077,47 +1107,24 @@ auth.onAuthStateChanged((user)=>{
     const isAnonymous = user.isAnonymous;
     const role = getSavedRole();
     if(isAnonymous && role === 'owner'){
-      hideAllScreens();
-      $('ownerRoot').style.display = 'block';
-      $('ownerAptoChip').textContent = (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
-      populateAptoSelect();
-      startMisVisitantesListener();
+      showOwnerRootUI();
     }else if(!isAnonymous && (role === 'concierge' || role === 'admin')){
-      hideAllScreens();
-      $('appRoot').style.display = 'block';
-      applyStaffRoleUI(role);
-      startPeopleListener();
-    }else{
-      // Sesión de un rol que ya no corresponde (p.ej. quedó una sesión anónima
-      // vieja pero ahora se quiere entrar como portería): cerrar y mostrar rol.
-      auth.signOut();
-      showRoleScreen();
+      showStaffRootUI(role);
     }
+    // Si el rol guardado no corresponde con el tipo de sesión, no se hace nada aquí:
+    // los flujos de botones (arriba) ya se encargan de cerrar sesión antes de continuar.
   }else{
     if(unsubscribePersonas){ unsubscribePersonas(); unsubscribePersonas = null; }
     if(unsubscribeMisVisitantes){ unsubscribeMisVisitantes(); unsubscribeMisVisitantes = null; }
-    hideAllScreens();
-    const role = getSavedRole();
-    if(role === 'owner'){
-      if(getOwnerAptos().length){
-        signInOwner();
-      }else{
-        openOwnerSetup();
-      }
-    }else if(role === 'concierge' || role === 'admin'){
-      $('loginTitleText').textContent = role === 'admin' ? I18N[currentLang].loginTitleAdmin : I18N[currentLang].loginTitlePorteria;
-      $('loginScreen').style.display = 'flex';
-    }else{
-      showRoleScreen();
-    }
   }
 });
 
 $('loginBtn').addEventListener('click', doLogin);
 $('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-$('logoutBtn').addEventListener('click', ()=>{
+$('logoutBtn').addEventListener('click', async ()=>{
   localStorage.removeItem(ROLE_KEY);
-  auth.signOut();
+  if(auth.currentUser){ try{ await auth.signOut(); }catch(e){} }
+  showRoleScreen();
 });
 
 function doLogin(){
@@ -1132,7 +1139,11 @@ function doLogin(){
   }
   $('loginBtn').textContent = 'Entrando...';
   $('loginBtn').disabled = true;
+  const role = getSavedRole();
   auth.signInWithEmailAndPassword(email, pass)
+    .then(()=>{
+      showStaffRootUI(role === 'admin' ? 'admin' : 'concierge');
+    })
     .catch((err)=>{
       errBox.textContent = 'Correo o contraseña incorrectos.';
       errBox.style.display = 'block';
@@ -1142,6 +1153,27 @@ function doLogin(){
       $('loginBtn').disabled = false;
     });
 }
+
+// Al abrir la app (sin haber tocado ningún botón todavía): si ya existe una
+// sesión guardada de antes en este dispositivo, entrar directo sin mostrar
+// la pantalla de selección de rol.
+(function bootFromSavedSession(){
+  const role = getSavedRole();
+  if(!role){ showRoleScreen(); return; }
+  if(role === 'owner'){
+    if(getOwnerAptos().length){
+      signInOwner();
+    }else{
+      openOwnerSetup();
+    }
+  }else{
+    // Deja que Firebase confirme la sesión guardada (correo/contraseña);
+    // si no hay sesión válida, se queda en la pantalla de login mostrada aquí.
+    $('loginTitleText').textContent = role === 'admin' ? I18N[currentLang].loginTitleAdmin : I18N[currentLang].loginTitlePorteria;
+    $('loginSubText').textContent = role === 'admin' ? I18N[currentLang].adminLoginSub : I18N[currentLang].staffLoginSub;
+    $('loginScreen').style.display = 'flex';
+  }
+})();
 
 let people = [];
 let editingCedula = null;
