@@ -393,6 +393,24 @@
     border-radius:8px;padding:10px 12px;font-size:13px;cursor:pointer;flex-shrink:0;
   }
   .apto-select-field{margin-bottom:14px;}
+
+  .balance-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:14px;
+  }
+  .balance-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+  .balance-row + .balance-row{border-top:1px solid var(--line);}
+  .balance-label{font-size:12px;color:var(--text-faint);}
+  .balance-apto{font-size:12.5px;color:var(--text-dim);font-family:var(--mono);margin-top:1px;}
+  .balance-amount{font-size:18px;font-weight:700;font-family:var(--mono);}
+  .balance-amount.due{color:var(--warn);}
+  .balance-amount.zero{color:var(--ok);}
+  .balance-readonly-tag{
+    font-size:10px;color:var(--text-faint);border:1px solid var(--line);border-radius:20px;
+    padding:2px 8px;margin-left:8px;vertical-align:middle;
+  }
+  body.text-lg .balance-amount{font-size:21px;}
+  body.text-lg .balance-label, body.text-lg .balance-apto{font-size:14px;}
 </style>
 </head>
 <body>
@@ -463,7 +481,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif5</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif6</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -478,6 +496,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="verify" data-i18n="tabVerify">Verificar</button>
     <button class="tab" data-tab="list" id="registroTabBtn" data-i18n="tabRegistro">Registro</button>
+    <button class="tab" data-tab="saldos" id="saldosTabBtn" data-i18n="tabSaldos">Saldos</button>
   </div>
 
   <section id="tab-verify" class="active">
@@ -504,6 +523,27 @@
     <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none;">
     <div id="importSummary"></div>
     <div id="listContainer"></div>
+  </section>
+
+  <section id="tab-saldos">
+    <div class="card" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
+      <h3 id="saldoFormTitle" style="margin:0 0 14px;font-size:15px;" data-i18n="newBalanceTitle">Actualizar saldo</h3>
+      <div class="field">
+        <label data-i18n="apartmentLabel">Apartamento</label>
+        <input type="text" class="mono" id="saldoApto" placeholder="Ej. 502">
+        <div class="err" id="errSaldoApto" data-i18n="errSaldoApto">Escribe el número de apartamento.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="pendingBalanceLabel">Saldo Pendiente</label>
+        <input type="number" class="mono" id="saldoMonto" placeholder="0" min="0" step="1">
+        <div class="err" id="errSaldoMonto" data-i18n="errSaldoMonto">Escribe un monto válido.</div>
+      </div>
+      <div class="sheet-actions" style="margin-top:4px;">
+        <button class="btn-cancel" id="saldoClearBtn" data-i18n="clearBtn">Limpiar</button>
+        <button class="btn-save" id="saldoSaveBtn" data-i18n="saveBalanceBtn">Guardar saldo</button>
+      </div>
+    </div>
+    <div id="saldosList"></div>
   </section>
 </div>
 
@@ -613,6 +653,8 @@
       <button id="ownerLogoutBtn" class="logout-btn" title="Salir">⎋ Salir</button>
     </div>
   </div>
+
+  <div id="ownerBalanceCard"></div>
 
   <div class="tabs">
     <button class="otab active" data-ownertab="nuevo" data-i18n="tabNuevo">Nuevo</button>
@@ -732,6 +774,7 @@ firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const personasRef = db.collection('personas');
+const saldosRef = db.collection('saldos');
 
 const $ = (id) => document.getElementById(id);
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -814,7 +857,19 @@ const I18N = {
     visitToAptoLabel: 'Visita a apto',
     visitanteActive: 'Visitante — estadía vigente',
     visitanteUpcoming: 'Visitante — la estadía aún no inicia',
-    visitanteExpired: 'Período de su estadía venció. ¡Gracias por su visita!'
+    visitanteExpired: 'Período de su estadía venció. ¡Gracias por su visita!',
+    pendingBalanceLabel: 'Saldo Pendiente',
+    readOnlyTag: 'Solo lectura',
+    tabSaldos: 'Saldos',
+    newBalanceTitle: 'Actualizar saldo',
+    editBalanceTitle: 'Editando saldo',
+    errSaldoApto: 'Escribe el número de apartamento.',
+    errSaldoMonto: 'Escribe un monto válido.',
+    clearBtn: 'Limpiar',
+    saveBalanceBtn: 'Guardar saldo',
+    emptySaldos: 'Aún no hay saldos cargados.',
+    balanceSaved: 'Saldo guardado.',
+    balanceDeleted: 'Saldo eliminado.'
   },
   en: {
     appTitle: '🏖️ El Palmar Residences',
@@ -890,7 +945,19 @@ const I18N = {
     visitToAptoLabel: 'Visiting apartment',
     visitanteActive: 'Visitor — stay is active',
     visitanteUpcoming: "Visitor — stay hasn't started yet",
-    visitanteExpired: 'Your stay has ended. Thanks for visiting!'
+    visitanteExpired: 'Your stay has ended. Thanks for visiting!',
+    pendingBalanceLabel: 'Pending Balance',
+    readOnlyTag: 'Read only',
+    tabSaldos: 'Balances',
+    newBalanceTitle: 'Update balance',
+    editBalanceTitle: 'Editing balance',
+    errSaldoApto: 'Enter the apartment number.',
+    errSaldoMonto: 'Enter a valid amount.',
+    clearBtn: 'Clear',
+    saveBalanceBtn: 'Save balance',
+    emptySaldos: 'No balances loaded yet.',
+    balanceSaved: 'Balance saved.',
+    balanceDeleted: 'Balance deleted.'
   }
 };
 
@@ -922,6 +989,9 @@ function applyLanguage(){
   if($('generarBtn')){
     try{ $('generarBtn').textContent = editingOwnerCedula ? t('saveChangesBtn') : t('generateQrBtn'); }
     catch(e){ $('generarBtn').textContent = t('generateQrBtn'); }
+  }
+  if($('ownerBalanceCard') && $('ownerBalanceCard').innerHTML && typeof lastSaldos !== 'undefined'){
+    try{ renderBalanceCard(getOwnerAptos(), lastSaldos); }catch(e){}
   }
 }
 
@@ -956,6 +1026,9 @@ document.querySelectorAll('[id^="fontSizeBtn"]').forEach(btn=>{
 
 let unsubscribePersonas = null;
 let unsubscribeMisVisitantes = null;
+let unsubscribeSaldos = null;
+let lastSaldos = {};
+let unsubscribeAdminSaldos = null;
 const ROLE_KEY = 'app-role';
 const OWNER_APTOS_KEY = 'mis-apartamentos'; // JSON array, p.ej. ["502","503"]
 
@@ -1035,6 +1108,7 @@ function showOwnerRootUI(){
   $('ownerAptoChip').textContent = '✎ ' + (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
   populateAptoSelect();
   startMisVisitantesListener();
+  startSaldosListener();
 }
 
 function showStaffRootUI(role){
@@ -1131,6 +1205,8 @@ auth.onAuthStateChanged((user)=>{
   }else{
     if(unsubscribePersonas){ unsubscribePersonas(); unsubscribePersonas = null; }
     if(unsubscribeMisVisitantes){ unsubscribeMisVisitantes(); unsubscribeMisVisitantes = null; }
+    if(unsubscribeSaldos){ unsubscribeSaldos(); unsubscribeSaldos = null; }
+    if(unsubscribeAdminSaldos){ unsubscribeAdminSaldos(); unsubscribeAdminSaldos = null; }
   }
 });
 
@@ -1217,8 +1293,10 @@ async function deletePersonaRemote(cedula){
 
 function applyStaffRoleUI(role){
   const registroBtn = $('registroTabBtn');
+  const saldosBtn = $('saldosTabBtn');
   if(role === 'concierge'){
     registroBtn.style.display = 'none';
+    saldosBtn.style.display = 'none';
     // Asegurar que la pestaña activa sea "Verificar"
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('#app > section').forEach(s=>s.classList.remove('active'));
@@ -1226,8 +1304,104 @@ function applyStaffRoleUI(role){
     $('tab-verify').classList.add('active');
   }else{
     registroBtn.style.display = '';
+    saldosBtn.style.display = '';
+    startAdminSaldosListener();
   }
 }
+
+// ---- Gestión de saldos (Administrador) ----
+let editingSaldoApto = null;
+
+function startAdminSaldosListener(){
+  if(unsubscribeAdminSaldos) return;
+  unsubscribeAdminSaldos = saldosRef.onSnapshot((snapshot)=>{
+    const saldos = snapshot.docs.map(d => ({ apto: d.id, monto: d.data().monto || 0 }));
+    renderAdminSaldosList(saldos);
+  }, (err)=>{
+    console.error(err);
+  });
+}
+
+function renderAdminSaldosList(saldos){
+  const box = $('saldosList');
+  if(!saldos.length){
+    box.innerHTML = `<div class="empty-hint">${t('emptySaldos')}</div>`;
+    return;
+  }
+  saldos.sort((a,b)=> a.apto.localeCompare(b.apto, undefined, {numeric:true}));
+  box.innerHTML = saldos.map(s => `
+    <div class="person-card">
+      <div class="person-top">
+        <div class="person-info">
+          <div class="person-name">${t('apartmentLabel')} ${escapeHtml(s.apto)}</div>
+        </div>
+        <div class="person-right">
+          <div class="balance-amount ${s.monto > 0 ? 'due' : 'zero'}" style="font-size:16px;">${formatMonto(s.monto)}</div>
+        </div>
+      </div>
+      <div class="person-actions">
+        <button data-editsaldo="${escapeHtml(s.apto)}" data-monto="${s.monto}">${t('editBtn')}</button>
+        <button class="danger" data-delsaldo="${escapeHtml(s.apto)}">${t('deleteBtn')}</button>
+      </div>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('[data-editsaldo]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      editingSaldoApto = b.dataset.editsaldo;
+      $('saldoApto').value = editingSaldoApto;
+      $('saldoMonto').value = b.dataset.monto;
+      $('saldoFormTitle').textContent = t('editBalanceTitle');
+      clearSaldoErrors();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+  box.querySelectorAll('[data-delsaldo]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      try{
+        await saldosRef.doc(b.dataset.delsaldo).delete();
+        showToast(t('balanceDeleted'));
+      }catch(e){
+        showToast('Error: ' + (e.code || e.message));
+      }
+    });
+  });
+}
+
+function clearSaldoErrors(){
+  ['errSaldoApto','errSaldoMonto'].forEach(id=>$(id).classList.remove('show'));
+}
+
+$('saldoClearBtn').addEventListener('click', ()=>{
+  editingSaldoApto = null;
+  $('saldoApto').value = '';
+  $('saldoMonto').value = '';
+  $('saldoFormTitle').textContent = t('newBalanceTitle');
+  clearSaldoErrors();
+});
+
+$('saldoSaveBtn').addEventListener('click', async ()=>{
+  clearSaldoErrors();
+  const apto = $('saldoApto').value.trim();
+  const montoRaw = $('saldoMonto').value;
+  let hasError = false;
+  if(!apto){ $('errSaldoApto').classList.add('show'); hasError = true; }
+  if(montoRaw === '' || isNaN(Number(montoRaw)) || Number(montoRaw) < 0){ $('errSaldoMonto').classList.add('show'); hasError = true; }
+  if(hasError) return;
+
+  $('saldoSaveBtn').disabled = true;
+  try{
+    await saldosRef.doc(apto).set({ monto: Number(montoRaw) });
+    showToast(t('balanceSaved'));
+    editingSaldoApto = null;
+    $('saldoApto').value = '';
+    $('saldoMonto').value = '';
+    $('saldoFormTitle').textContent = t('newBalanceTitle');
+  }catch(e){
+    showToast('Error: ' + (e.code || e.message));
+  }
+  $('saldoSaveBtn').disabled = false;
+});
 
 function updateCount(){
   $('totalCount').textContent = people.length + (people.length === 1 ? ' registro' : ' registros');
@@ -2031,6 +2205,51 @@ $('nuevoBtn').addEventListener('click', ()=>{
 });
 
 // ---- Mis visitantes ----
+// ---- Saldo pendiente (solo lectura para el propietario) ----
+
+function formatMonto(monto){
+  const n = Number(monto) || 0;
+  return n.toLocaleString(currentLang === 'en' ? 'en-US' : 'es-CO', {
+    style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
+  });
+}
+
+function startSaldosListener(){
+  if(unsubscribeSaldos) return;
+  const aptos = getOwnerAptos();
+  if(!aptos.length) return;
+  unsubscribeSaldos = saldosRef
+    .where(firebase.firestore.FieldPath.documentId(), 'in', aptos.slice(0, 30))
+    .onSnapshot((snapshot)=>{
+      const saldos = {};
+      snapshot.docs.forEach(d => { saldos[d.id] = d.data().monto || 0; });
+      lastSaldos = saldos;
+      renderBalanceCard(aptos, saldos);
+    }, (err)=>{
+      console.error(err);
+      renderBalanceCard(aptos, {}); // si falla (p.ej. sin documentos aún), mostrar $0
+    });
+}
+
+function renderBalanceCard(aptos, saldos){
+  const box = $('ownerBalanceCard');
+  box.innerHTML = `
+    <div class="balance-card">
+      ${aptos.map(apto=>{
+        const monto = saldos[apto] || 0;
+        const cls = monto > 0 ? 'due' : 'zero';
+        return `
+          <div class="balance-row">
+            <div>
+              <div class="balance-label">${t('pendingBalanceLabel')} <span class="balance-readonly-tag">${t('readOnlyTag')}</span></div>
+              ${aptos.length > 1 ? `<div class="balance-apto">${t('apartmentLabel')} ${escapeHtml(apto)}</div>` : ''}
+            </div>
+            <div class="balance-amount ${cls}">${formatMonto(monto)}</div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
 function startMisVisitantesListener(){
   if(unsubscribeMisVisitantes) return;
   const aptos = getOwnerAptos();

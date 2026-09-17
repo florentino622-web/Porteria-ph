@@ -14,21 +14,32 @@ Usa el mismo proyecto de Firebase que ya tenías configurado.
 
 ## Requisito: actualizar las reglas de Firestore
 
-Esta versión necesita reglas un poco más amplias que las anteriores (los propietarios ahora
-también pueden **leer** sus propios visitantes, no solo crearlos). Ve a Firebase console →
-Firestore Database → pestaña **Rules**, borra todo y pega esto:
+Esta versión agrega el **Saldo Pendiente** por apartamento (lo carga el Administrador, lo ve
+el Propietario solo para consultar). Necesita una regla nueva para la colección `saldos`.
+Ve a Firebase console → Firestore Database → pestaña **Rules**, y agrega este bloque dentro de
+`match /databases/{database}/documents { ... }`, junto al que ya tenías para `personas`:
+
+```
+match /saldos/{apartamento} {
+  // Cualquiera que haya iniciado sesión puede leer (portería, admin o propietario)
+  allow read: if request.auth != null;
+
+  // Solo portería/administrador (correo y contraseña) puede crear, editar o borrar saldos
+  allow write: if request.auth != null
+               && request.auth.token.firebase.sign_in_provider == 'password';
+}
+```
+
+Las reglas completas quedarían así (con las de `personas` que ya tenías, más esta nueva):
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /personas/{cedula} {
-      // Portería / Administrador: acceso total (correo/contraseña)
       allow read, write: if request.auth != null
                           && request.auth.token.firebase.sign_in_provider == 'password';
 
-      // Propietarios (anónimos): pueden leer, crear, actualizar y borrar
-      // ÚNICAMENTE visitantes — nunca pueden tocar registros de tipo "inquilino".
       allow read: if request.auth != null
                   && request.auth.token.firebase.sign_in_provider == 'anonymous'
                   && resource.data.tipo == 'visitante';
@@ -46,11 +57,18 @@ service cloud.firestore {
                     && request.auth.token.firebase.sign_in_provider == 'anonymous'
                     && resource.data.tipo == 'visitante';
     }
+
+    match /saldos/{apartamento} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.token.firebase.sign_in_provider == 'password';
+    }
   }
 }
 ```
 
-Clic en **Publicar**.
+Clic en **Publicar**. Sin este cambio, la pestaña "Saldos" del administrador dará error de
+permisos al intentar guardar.
 
 Confirma también que en **Authentication → Sign-in method** tengas activados:
 - Correo electrónico/contraseña
@@ -129,4 +147,20 @@ así que no hay conflicto — pero ya no hace falta mantener dos links distintos
 
 No se necesita ningún cambio de configuración de Firebase para esta actualización — solo sube
 el `index.html` nuevo.
+
+---
+
+## Novedades v-unif6 — Saldo Pendiente
+
+- El **Administrador** tiene una pestaña nueva, **"Saldos"** (Portería no la ve — solo consulta).
+  Ahí escribe el número de apartamento y el monto, y guarda. También puede editar o eliminar
+  saldos ya cargados, todo desde una lista debajo del formulario.
+- El **Propietario** ve su saldo automáticamente arriba de sus pestañas, marcado como
+  **"Solo lectura"** — no lo puede tocar, solo consultarlo. Si tiene varios apartamentos, ve
+  el saldo de cada uno por separado.
+- Todo se sincroniza en tiempo real: en cuanto el administrador guarda un monto, el propietario
+  lo ve sin recargar la página.
+- **Requiere la regla nueva de Firestore para la colección `saldos`** — ver la sección de
+  "Requisito: actualizar las reglas de Firestore" más arriba. Sin eso, el administrador no va
+  a poder guardar saldos (dará error de permisos).
 
