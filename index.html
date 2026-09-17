@@ -51,8 +51,10 @@
 
   .masthead{
     display:flex;
-    align-items:baseline;
+    align-items:center;
     justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px 10px;
     padding-bottom:14px;
     margin-bottom:18px;
     border-bottom:1px solid var(--line);
@@ -70,7 +72,7 @@
     font-family:var(--mono);
     text-shadow: 0 1px 6px rgba(0,0,0,0.5);
   }
-  .masthead-right{display:flex;align-items:center;gap:10px;}
+  .masthead-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
   .logout-btn{
     background:rgba(239,108,126,0.14);border:1px solid var(--danger);color:var(--danger);
     border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;
@@ -214,30 +216,31 @@
     background:var(--surface);border:1px solid var(--line);border-radius:12px;
     padding:13px 14px;margin-bottom:9px;
   }
-  .person-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-  .person-left{display:flex;gap:11px;align-items:flex-start;min-width:0;}
+  .person-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .person-info{min-width:0;flex:1;}
+  .person-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
   .avatar{
-    width:42px;height:42px;border-radius:10px;flex-shrink:0;object-fit:cover;
+    width:68px;height:68px;border-radius:14px;flex-shrink:0;object-fit:cover;
     background:var(--surface-2);border:1px solid var(--line);
   }
   .avatar-placeholder{
-    width:42px;height:42px;border-radius:10px;flex-shrink:0;
+    width:68px;height:68px;border-radius:14px;flex-shrink:0;
     background:var(--surface-2);border:1px solid var(--line);
     display:flex;align-items:center;justify-content:center;
-    font-size:15px;font-weight:700;color:var(--text-faint);
+    font-size:22px;font-weight:700;color:var(--text-faint);
   }
-  .person-name{font-weight:650;font-size:15px;}
-  .person-meta{font-size:12.5px;color:var(--text-dim);margin-top:2px;font-family:var(--mono);}
+  .person-name{font-weight:650;font-size:16px;}
+  .person-meta{font-size:13.5px;color:var(--text-dim);margin-top:2px;font-family:var(--mono);}
   .badge{
-    font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;
+    font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;
   }
   .badge.inquilino{background:rgba(79,209,165,0.15);color:var(--accent);}
   .badge.visitante{background:rgba(240,170,92,0.15);color:var(--warn);}
-  .person-dates{font-size:12px;color:var(--text-faint);margin-top:8px;font-family:var(--mono);}
-  .person-desc{font-size:12.5px;color:var(--text-dim);margin-top:6px;font-style:italic;}
+  .person-dates{font-size:13px;color:var(--text-faint);margin-top:8px;font-family:var(--mono);}
+  .person-desc{font-size:13.5px;color:var(--text-dim);margin-top:6px;font-style:italic;}
   .person-actions{display:flex;gap:14px;margin-top:10px;}
   .person-actions button{
-    background:none;border:none;color:var(--text-faint);font-size:12.5px;
+    background:none;border:none;color:var(--text-faint);font-size:13.5px;
     cursor:pointer;padding:0;font-family:var(--sans);font-weight:600;
   }
   .person-actions button:hover{color:var(--text);}
@@ -334,82 +337,141 @@
     font-size:12.5px;font-weight:600;margin-top:16px;cursor:pointer;text-align:center;
   }
   .mono-input{font-family:var(--mono);}
+
+  /* ---- Controles de idioma y tamaño de letra ---- */
+  .pref-bar{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
+  .pref-btn{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);
+    border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .pref-btn.on{background:var(--accent);color:#0B1712;border-color:var(--accent);}
+  .masthead-prefs{display:flex;gap:4px;}
+  .masthead-prefs .pref-btn{padding:4px 8px;font-size:10.5px;border-radius:6px;}
+
+  /* ---- Modo letra grande ---- */
+  body.text-lg{font-size:17px;}
+  body.text-lg .masthead h1{font-size:22px;}
+  body.text-lg .login-title{font-size:23px;}
+  body.text-lg .login-sub, body.text-lg .role-btn-sub{font-size:14px;}
+  body.text-lg .role-btn-title{font-size:18px;}
+  body.text-lg .field label{font-size:14.5px;}
+  body.text-lg .field input, body.text-lg .field textarea, body.text-lg .field select{font-size:17px;padding:13px 14px;}
+  body.text-lg .btn-primary, body.text-lg .login-btn{font-size:17px;padding:16px;}
+  body.text-lg .btn-secondary{font-size:16px;padding:14px;}
+  body.text-lg .tab, body.text-lg .otab{font-size:15.5px;padding:12px 8px;}
+  body.text-lg .person-name{font-size:18px;}
+  body.text-lg .person-meta{font-size:15px;}
+  body.text-lg .person-dates, body.text-lg .person-desc{font-size:14.5px;}
+  body.text-lg .result-title{font-size:18px;}
+  body.text-lg .result-grid{font-size:16px;}
+  body.text-lg .badge{font-size:13px;padding:4px 11px;}
+  body.text-lg .verify-row input{font-size:18px;padding:14px;}
+  body.text-lg .verify-row button{font-size:15px;}
+  body.text-lg .hint, body.text-lg .login-hint{font-size:13.5px;}
+  body.text-lg .logout-btn{font-size:14px;padding:9px 16px;}
+  body.text-lg .avatar, body.text-lg .avatar-placeholder{width:80px;height:80px;}
+
+  .apto-input-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;}
+  .apto-input-row .field{flex:1;margin-bottom:0;}
+  .apto-remove-btn{
+    background:none;border:1px solid var(--line);color:var(--danger);
+    border-radius:8px;padding:10px 12px;font-size:13px;cursor:pointer;flex-shrink:0;
+  }
+  .apto-select-field{margin-bottom:14px;}
 </style>
 </head>
 <body>
 <div id="roleScreen" class="login-screen">
   <div class="login-box" style="max-width:380px;">
-    <div class="login-title">🏖️ Portería</div>
-    <div class="login-sub">¿Cómo vas a entrar?</div>
+    <div class="pref-bar">
+      <button class="pref-btn" id="langEsBtn" data-lang="es">ES</button>
+      <button class="pref-btn" id="langEnBtn" data-lang="en">EN</button>
+      <button class="pref-btn" id="fontSizeBtn">Aa+</button>
+    </div>
+    <div class="login-title" data-i18n="appTitle">🏖️ Portería</div>
+    <div class="login-sub" data-i18n="roleQuestion">¿Cómo vas a entrar?</div>
     <button class="role-btn" data-role="concierge">
-      <span class="role-btn-title">Portería</span>
-      <span class="role-btn-sub">Consultar quién intenta ingresar</span>
+      <span class="role-btn-title" data-i18n="roleConciergeTitle">Portería</span>
+      <span class="role-btn-sub" data-i18n="roleConciergeSub">Consultar quién intenta ingresar</span>
     </button>
     <button class="role-btn" data-role="admin">
-      <span class="role-btn-title">Administrador</span>
-      <span class="role-btn-sub">Corregir cualquier registro</span>
+      <span class="role-btn-title" data-i18n="roleAdminTitle">Administrador</span>
+      <span class="role-btn-sub" data-i18n="roleAdminSub">Corregir cualquier registro</span>
     </button>
     <button class="role-btn" data-role="owner">
-      <span class="role-btn-title">Propietario</span>
-      <span class="role-btn-sub">Registrar mis visitantes</span>
+      <span class="role-btn-title" data-i18n="roleOwnerTitle">Propietario</span>
+      <span class="role-btn-sub" data-i18n="roleOwnerSub">Registrar mis visitantes</span>
     </button>
   </div>
 </div>
 
 <div id="loginScreen" class="login-screen" style="display:none;">
   <div class="login-box">
+    <div class="pref-bar">
+      <button class="pref-btn" id="langEsBtn2" data-lang="es">ES</button>
+      <button class="pref-btn" id="langEnBtn2" data-lang="en">EN</button>
+      <button class="pref-btn" id="fontSizeBtn2">Aa+</button>
+    </div>
     <div class="login-title" id="loginTitleText">🏖️ Portería</div>
-    <div class="login-sub" id="loginSubText">Acceso del personal de portería</div>
+    <div class="login-sub" id="loginSubText" data-i18n="staffLoginSub">Acceso del personal de portería</div>
     <div class="field">
-      <label>Correo</label>
+      <label data-i18n="emailLabel">Correo</label>
       <input type="email" id="loginEmail" autocomplete="username" placeholder="portero@tuedificio.com">
     </div>
     <div class="field">
-      <label>Contraseña</label>
+      <label data-i18n="passwordLabel">Contraseña</label>
       <input type="password" id="loginPassword" autocomplete="current-password">
     </div>
     <div class="err show" id="loginError" style="display:none;"></div>
-    <button id="loginBtn" class="login-btn">Entrar</button>
-    <div class="login-hint">Usa el mismo correo y contraseña en todos los dispositivos de la portería.</div>
-    <button id="backFromLoginBtn" class="back-link">← Elegir otra opción</button>
+    <button id="loginBtn" class="login-btn" data-i18n="enterBtn">Entrar</button>
+    <div class="login-hint" data-i18n="staffLoginHint">Usa el mismo correo y contraseña en todos los dispositivos de la portería.</div>
+    <button id="backFromLoginBtn" class="back-link" data-i18n="backLink">← Elegir otra opción</button>
   </div>
 </div>
 
 <div id="ownerSetupScreen" class="login-screen" style="display:none;">
   <div class="login-box">
-    <div class="login-title">🏖️ Propietario</div>
-    <div class="login-sub">¿Cuál es tu apartamento?</div>
-    <div class="field">
-      <label>Número de apartamento</label>
-      <input type="text" class="mono-input" id="ownerAptoInput" placeholder="Ej. 502">
+    <div class="pref-bar">
+      <button class="pref-btn" id="langEsBtn3" data-lang="es">ES</button>
+      <button class="pref-btn" id="langEnBtn3" data-lang="en">EN</button>
+      <button class="pref-btn" id="fontSizeBtn3">Aa+</button>
     </div>
-    <button id="ownerContinueBtn" class="login-btn">Continuar</button>
-    <button id="backFromOwnerBtn" class="back-link">← Elegir otra opción</button>
+    <div class="login-title" data-i18n="ownerSetupTitle">🏖️ Propietario</div>
+    <div class="login-sub" data-i18n="ownerSetupSub">¿Cuál(es) es/son tu(s) apartamento(s)?</div>
+    <div id="ownerAptoInputs"></div>
+    <button type="button" id="addAptoBtn" class="back-link" data-i18n="addAnotherApto" style="margin-top:8px;">+ Agregar otro apartamento</button>
+    <button id="ownerContinueBtn" class="login-btn" data-i18n="continueBtn">Continuar</button>
+    <button id="backFromOwnerBtn" class="back-link" data-i18n="backLink">← Elegir otra opción</button>
   </div>
 </div>
 
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1>Portería <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif2</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif3</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
+      <div class="masthead-prefs">
+        <button class="pref-btn" id="langEsBtnApp" data-lang="es">ES</button>
+        <button class="pref-btn" id="langEnBtnApp" data-lang="en">EN</button>
+        <button class="pref-btn" id="fontSizeBtn4">Aa+</button>
+      </div>
       <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">⎋ Salir</button>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="verify">Verificar</button>
-    <button class="tab" data-tab="list" id="registroTabBtn">Registro</button>
+    <button class="tab active" data-tab="verify" data-i18n="tabVerify">Verificar</button>
+    <button class="tab" data-tab="list" id="registroTabBtn" data-i18n="tabRegistro">Registro</button>
   </div>
 
   <section id="tab-verify" class="active">
     <div class="verify-box">
-      <label for="verifyInput">Cédula de la persona en la puerta</label>
+      <label for="verifyInput" data-i18n="verifyLabel">Cédula de la persona en la puerta</label>
       <div class="verify-row">
         <input id="verifyInput" type="text" inputmode="numeric" placeholder="Ej. 1023456789" autocomplete="off">
         <button id="scanQrBtn" class="btn-qr" title="Escanear QR">QR</button>
-        <button id="verifyBtn">Verificar</button>
+        <button id="verifyBtn" data-i18n="verifyBtn">Verificar</button>
       </div>
     </div>
     <div id="verifyResult"></div>
@@ -417,8 +479,8 @@
 
   <section id="tab-list">
     <div class="toolbar">
-      <input id="searchInput" type="text" placeholder="Buscar por nombre, cédula o apto">
-      <button class="btn-add" id="openAddBtn">+ Nuevo</button>
+      <input id="searchInput" type="text" placeholder="Buscar por nombre, cédula o apto" data-i18n-placeholder="searchPlaceholder">
+      <button class="btn-add" id="openAddBtn" data-i18n="addNewBtn">+ Nuevo</button>
     </div>
     <div class="import-row">
       <button class="btn-import" id="openImportBtn">Importar Excel / CSV</button>
@@ -432,60 +494,60 @@
 
 <div class="overlay" id="overlay">
   <div class="sheet">
-    <h2 id="sheetTitle">Nuevo registro</h2>
+    <h2 id="sheetTitle" data-i18n="newRecordTitle">Nuevo registro</h2>
     <div class="field">
-      <label>Tipo</label>
+      <label data-i18n="typeLabel">Tipo</label>
       <div class="type-toggle">
-        <button type="button" id="btnInquilino">Inquilino</button>
-        <button type="button" id="btnVisitante">Visitante</button>
+        <button type="button" id="btnInquilino" data-i18n="badgeInquilino">Inquilino</button>
+        <button type="button" id="btnVisitante" data-i18n="badgeVisitante">Visitante</button>
       </div>
     </div>
     <div class="field">
-      <label>Foto</label>
+      <label data-i18n="photoLabelShort">Foto</label>
       <div class="photo-field">
         <img id="photoPreview" class="photo-preview" style="display:none;" alt="Foto">
-        <div id="photoPlaceholder" class="photo-placeholder">Sin foto</div>
+        <div id="photoPlaceholder" class="photo-placeholder" data-i18n="noPhoto">Sin foto</div>
         <div class="photo-buttons">
-          <button type="button" id="takePhotoBtn">Tomar foto</button>
-          <button type="button" id="pickPhotoBtn">Elegir de galería</button>
-          <button type="button" id="removePhotoBtn" class="remove" style="display:none;">Quitar</button>
+          <button type="button" id="takePhotoBtn" data-i18n="takePhoto">Tomar foto</button>
+          <button type="button" id="pickPhotoBtn" data-i18n="pickGallery">Elegir de galería</button>
+          <button type="button" id="removePhotoBtn" class="remove" style="display:none;" data-i18n="removePhoto">Quitar</button>
         </div>
       </div>
       <input type="file" id="photoGallery" accept="image/*" style="display:none;">
     </div>
     <div class="field">
-      <label>Nombre completo</label>
+      <label data-i18n="fullNameLabel">Nombre completo</label>
       <input type="text" id="fNombre" placeholder="Nombre y apellido">
       <div class="err" id="errNombre">Escribe el nombre.</div>
     </div>
     <div class="field">
-      <label>Cédula</label>
+      <label data-i18n="cedulaLabel">Cédula</label>
       <input type="text" class="mono" id="fCedula" inputmode="numeric" placeholder="Número de identificación">
       <div class="err" id="errCedula">Escribe una cédula válida.</div>
     </div>
     <div class="field">
-      <label>Apartamento</label>
+      <label data-i18n="apartmentLabel">Apartamento</label>
       <input type="text" class="mono" id="fApto" placeholder="Ej. 502">
       <div class="err" id="errApto">Escribe el número de apartamento.</div>
     </div>
     <div class="date-row" id="dateFields" style="display:none;">
       <div class="field">
-        <label>Inicio de estadía</label>
+        <label data-i18n="stayFromLabel">Inicio de estadía</label>
         <input type="date" id="fInicio">
       </div>
       <div class="field">
-        <label>Fin de estadía</label>
+        <label data-i18n="stayToLabel">Fin de estadía</label>
         <input type="date" id="fFin">
       </div>
     </div>
     <div class="err" id="errFechas">La fecha de fin debe ser posterior al inicio.</div>
     <div class="field">
-      <label>Descripción adicional (opcional)</label>
+      <label data-i18n="descriptionLabel">Descripción adicional (opcional)</label>
       <textarea id="fDescripcion" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 11px;color:var(--text);font-size:14.5px;font-family:var(--sans);resize:vertical;min-height:60px;" placeholder="Notas sobre esta persona..."></textarea>
     </div>
     <div class="sheet-actions">
-      <button class="btn-cancel" id="cancelBtn">Cancelar</button>
-      <button class="btn-save" id="saveBtn">Guardar</button>
+      <button class="btn-cancel" id="cancelBtn" data-i18n="cancelBtn">Cancelar</button>
+      <button class="btn-save" id="saveBtn" data-i18n="saveBtn">Guardar</button>
     </div>
   </div>
 </div>
@@ -525,62 +587,71 @@
 <div id="ownerRoot" style="display:none;">
 <div id="ownerApp">
   <div class="masthead">
-    <h1>Visitantes <span style="font-size:11px;font-weight:600;color:#F0A868;">🏖️</span></h1>
+    <h1><span data-i18n="mastheadVisitantes">Visitantes</span> <span style="font-size:11px;font-weight:600;color:#F0A868;">🏖️</span></h1>
     <div class="masthead-right">
       <span class="sub" id="ownerAptoChip"></span>
+      <div class="masthead-prefs">
+        <button class="pref-btn" id="langEsBtnOwner" data-lang="es">ES</button>
+        <button class="pref-btn" id="langEnBtnOwner" data-lang="en">EN</button>
+        <button class="pref-btn" id="fontSizeBtn5">Aa+</button>
+      </div>
       <button id="ownerLogoutBtn" class="logout-btn" title="Salir">⎋ Salir</button>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="otab active" data-ownertab="nuevo">Nuevo</button>
-    <button class="otab" data-ownertab="misvisitantes">Mis visitantes</button>
+    <button class="otab active" data-ownertab="nuevo" data-i18n="tabNuevo">Nuevo</button>
+    <button class="otab" data-ownertab="misvisitantes" data-i18n="tabMisVisitantes">Mis visitantes</button>
   </div>
 
   <section id="ownertab-nuevo" class="active">
     <div id="ownerFormScreen">
       <div class="card" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;">
+        <div class="field apto-select-field" id="vAptoField" style="display:none;">
+          <label data-i18n="apartmentLabel">Apartamento</label>
+          <select id="vApto"></select>
+        </div>
         <div class="field">
-          <label>Nombre completo del visitante</label>
+          <label data-i18n="visitorNameLabel">Nombre completo del visitante</label>
           <input type="text" id="vNombre" placeholder="Nombre y apellido">
           <div class="err" id="errNombre">Escribe el nombre del visitante.</div>
         </div>
         <div class="field">
-          <label>Cédula</label>
+          <label data-i18n="cedulaLabel">Cédula</label>
           <input type="text" class="mono-input" id="vCedula" inputmode="numeric" placeholder="Número de identificación">
           <div class="err" id="errCedula">Escribe la cédula.</div>
         </div>
         <div class="date-row" style="display:flex;gap:10px;">
           <div class="field" style="flex:1;">
-            <label>Desde</label>
+            <label data-i18n="fromLabel">Desde</label>
             <input type="date" id="vInicio">
           </div>
           <div class="field" style="flex:1;">
-            <label>Hasta</label>
+            <label data-i18n="toLabel">Hasta</label>
             <input type="date" id="vFin">
           </div>
         </div>
         <div class="err" id="errFechas">La fecha final debe ser posterior a la inicial.</div>
         <div class="field">
-          <label>Foto (documento o rostro del visitante, opcional)</label>
+          <label data-i18n="photoLabel">Foto (documento o rostro del visitante, opcional)</label>
           <div class="photo-field">
             <img id="ownerPhotoPreview" class="photo-preview" style="display:none;" alt="Foto">
-            <div id="ownerPhotoPlaceholder" class="photo-placeholder">Sin foto</div>
+            <div id="ownerPhotoPlaceholder" class="photo-placeholder" data-i18n="noPhoto">Sin foto</div>
             <div class="photo-buttons">
-              <button type="button" id="ownerTakePhotoBtn">Tomar foto</button>
-              <button type="button" id="ownerPickPhotoBtn">Galería</button>
-              <button type="button" id="ownerRemovePhotoBtn" style="display:none;color:var(--danger);">Quitar</button>
+              <button type="button" id="ownerTakePhotoBtn" data-i18n="takePhoto">Tomar foto</button>
+              <button type="button" id="ownerPickPhotoBtn" data-i18n="gallery">Galería</button>
+              <button type="button" id="ownerRemovePhotoBtn" style="display:none;color:var(--danger);" data-i18n="removePhoto">Quitar</button>
             </div>
           </div>
           <input type="file" id="ownerPhotoGallery" accept="image/*" style="display:none;">
         </div>
         <div class="field">
-          <label>Descripción adicional (opcional)</label>
+          <label data-i18n="descriptionLabel">Descripción adicional (opcional)</label>
           <textarea id="vDescripcion" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--text);font-size:15px;font-family:var(--sans);resize:vertical;min-height:70px;" placeholder="Ej. Viene por evento familiar..."></textarea>
         </div>
-        <button id="generarBtn" class="btn-primary" style="width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:15px;cursor:pointer;">Generar código QR</button>
+        <button id="generarBtn" class="btn-primary" style="width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:15px;cursor:pointer;" data-i18n="generateQrBtn">Generar código QR</button>
       </div>
-      <div class="hint" style="font-size:12px;color:var(--text-faint);margin-top:14px;text-align:center;line-height:1.5;">El código QR se genera con la cédula del visitante. Envíaselo por WhatsApp — al llegar, lo muestra en portería para ingresar más rápido.</div>
+      <div class="hint" style="font-size:12px;color:var(--text-faint);margin-top:14px;text-align:center;line-height:1.5;" data-i18n="qrHint">El código QR se genera con la cédula del visitante. Envíaselo por WhatsApp — al llegar, lo muestra en portería para ingresar más rápido.</div>
     </div>
 
     <div id="ownerResultScreen" style="display:none;text-align:center;">
@@ -590,15 +661,15 @@
         <div class="result-sub" id="resApto" style="font-size:13px;color:var(--text-dim);margin-bottom:18px;font-family:var(--mono);"></div>
         <div id="qrCanvasHolder" style="display:inline-block;background:#fff;padding:14px;border-radius:14px;margin-bottom:16px;"></div>
         <div class="result-details" style="text-align:left;background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;">
-          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Cédula</span><span id="resCedula" style="font-family:var(--mono);"></span></div>
-          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Desde</span><span id="resInicio" style="font-family:var(--mono);"></span></div>
-          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);">Hasta</span><span id="resFin" style="font-family:var(--mono);"></span></div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);" data-i18n="cedulaLabel">Cédula</span><span id="resCedula" style="font-family:var(--mono);"></span></div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);" data-i18n="fromLabel">Desde</span><span id="resInicio" style="font-family:var(--mono);"></span></div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--text-faint);" data-i18n="toLabel">Hasta</span><span id="resFin" style="font-family:var(--mono);"></span></div>
         </div>
         <div class="btn-row" style="display:flex;gap:10px;">
-          <button id="downloadBtn" class="btn-secondary" style="flex:1;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;">Descargar</button>
-          <button id="shareBtn" class="btn-primary" style="flex:1;padding:12px;border-radius:9px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:14px;cursor:pointer;">Compartir</button>
+          <button id="downloadBtn" class="btn-secondary" style="flex:1;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;" data-i18n="downloadBtn">Descargar</button>
+          <button id="shareBtn" class="btn-primary" style="flex:1;padding:12px;border-radius:9px;border:none;background:var(--accent-owner);color:#241505;font-weight:700;font-size:14px;cursor:pointer;" data-i18n="shareBtn">Compartir</button>
         </div>
-        <button id="nuevoBtn" class="btn-secondary" style="width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;margin-top:10px;">Registrar otro visitante</button>
+        <button id="nuevoBtn" class="btn-secondary" style="width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);font-weight:600;font-size:14px;cursor:pointer;margin-top:10px;" data-i18n="registerAnotherBtn">Registrar otro visitante</button>
       </div>
     </div>
   </section>
@@ -650,15 +721,287 @@ const personasRef = db.collection('personas');
 const $ = (id) => document.getElementById(id);
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 
+// ============================================================
+// IDIOMA (español / inglés)
+// ============================================================
+const I18N = {
+  es: {
+    appTitle: '🏖️ Portería',
+    loginTitlePorteria: '🏖️ Portería',
+    loginTitleAdmin: '🏖️ Administrador',
+    roleQuestion: '¿Cómo vas a entrar?',
+    roleConciergeTitle: 'Portería',
+    roleConciergeSub: 'Consultar quién intenta ingresar',
+    roleAdminTitle: 'Administrador',
+    roleAdminSub: 'Corregir cualquier registro',
+    roleOwnerTitle: 'Propietario',
+    roleOwnerSub: 'Registrar mis visitantes',
+    staffLoginSub: 'Acceso del personal de portería',
+    adminLoginSub: 'Acceso de administración — corrige cualquier registro',
+    emailLabel: 'Correo',
+    passwordLabel: 'Contraseña',
+    enterBtn: 'Entrar',
+    staffLoginHint: 'Usa el mismo correo y contraseña en todos los dispositivos de la portería.',
+    backLink: '← Elegir otra opción',
+    ownerSetupTitle: '🏖️ Propietario',
+    ownerSetupSub: '¿Cuál(es) es/son tu(s) apartamento(s)?',
+    addAnotherApto: '+ Agregar otro apartamento',
+    continueBtn: 'Continuar',
+    apartmentLabel: 'Apartamento',
+    aptoChipPrefix: 'Apto',
+    toastNoApto: 'Escribe al menos un número de apartamento.',
+    mastheadPorteria: 'Portería',
+    mastheadVisitantes: 'Visitantes',
+    tabVerify: 'Verificar',
+    tabRegistro: 'Registro',
+    tabNuevo: 'Nuevo',
+    tabMisVisitantes: 'Mis visitantes',
+    verifyLabel: 'Cédula de la persona en la puerta',
+    verifyBtn: 'Verificar',
+    searchPlaceholder: 'Buscar por nombre, cédula o apto',
+    addNewBtn: '+ Nuevo',
+    visitorNameLabel: 'Nombre completo del visitante',
+    cedulaLabel: 'Cédula',
+    fromLabel: 'Desde',
+    toLabel: 'Hasta',
+    photoLabel: 'Foto (documento o rostro del visitante, opcional)',
+    photoLabelShort: 'Foto',
+    noPhoto: 'Sin foto',
+    takePhoto: 'Tomar foto',
+    gallery: 'Galería',
+    pickGallery: 'Elegir de galería',
+    removePhoto: 'Quitar',
+    descriptionLabel: 'Descripción adicional (opcional)',
+    generateQrBtn: 'Generar código QR',
+    saveChangesBtn: 'Guardar cambios',
+    qrHint: 'El código QR se genera con la cédula del visitante. Envíaselo por WhatsApp — al llegar, lo muestra en portería para ingresar más rápido.',
+    downloadBtn: 'Descargar',
+    shareBtn: 'Compartir',
+    registerAnotherBtn: 'Registrar otro visitante',
+    editBtn: 'Editar',
+    deleteBtn: 'Eliminar',
+    emptyRegistro: 'Aún no hay personas registradas. Toca "+ Nuevo" para agregar la primera.',
+    emptySearch: 'Nada coincide con esa búsqueda.',
+    emptyMisVisitantes: 'Todavía no has registrado visitantes.',
+    badgeInquilino: 'Inquilino',
+    badgeVisitante: 'Visitante',
+    newRecordTitle: 'Nuevo registro',
+    editRecordTitle: 'Editar registro',
+    typeLabel: 'Tipo',
+    fullNameLabel: 'Nombre completo',
+    stayFromLabel: 'Inicio de estadía',
+    stayToLabel: 'Fin de estadía',
+    cancelBtn: 'Cancelar',
+    saveBtn: 'Guardar',
+    notFound: 'No encontrado',
+    inquilinoAccessOk: 'Inquilino — acceso permitido',
+    nameLabel: 'Nombre',
+    visitToAptoLabel: 'Visita a apto',
+    visitanteActive: 'Visitante — estadía vigente',
+    visitanteUpcoming: 'Visitante — la estadía aún no inicia',
+    visitanteExpired: 'Período de su estadía venció. ¡Gracias por su visita!'
+  },
+  en: {
+    appTitle: '🏖️ Front Desk',
+    loginTitlePorteria: '🏖️ Front Desk',
+    loginTitleAdmin: '🏖️ Administrator',
+    roleQuestion: 'How are you signing in?',
+    roleConciergeTitle: 'Front Desk',
+    roleConciergeSub: 'Look up who is trying to enter',
+    roleAdminTitle: 'Administrator',
+    roleAdminSub: 'Fix any record',
+    roleOwnerTitle: 'Resident',
+    roleOwnerSub: 'Register my visitors',
+    staffLoginSub: 'Access for front desk staff',
+    adminLoginSub: 'Administrator access — fix any record',
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    enterBtn: 'Sign in',
+    staffLoginHint: 'Use the same email and password on every front-desk device.',
+    backLink: '← Choose another option',
+    ownerSetupTitle: '🏖️ Resident',
+    ownerSetupSub: 'Which apartment(s) are yours?',
+    addAnotherApto: '+ Add another apartment',
+    continueBtn: 'Continue',
+    apartmentLabel: 'Apartment',
+    aptoChipPrefix: 'Apt.',
+    toastNoApto: 'Enter at least one apartment number.',
+    mastheadPorteria: 'Front Desk',
+    mastheadVisitantes: 'Visitors',
+    tabVerify: 'Verify',
+    tabRegistro: 'Directory',
+    tabNuevo: 'New',
+    tabMisVisitantes: 'My visitors',
+    verifyLabel: 'ID number of the person at the door',
+    verifyBtn: 'Verify',
+    searchPlaceholder: 'Search by name, ID or apartment',
+    addNewBtn: '+ New',
+    visitorNameLabel: "Visitor's full name",
+    cedulaLabel: 'ID number',
+    fromLabel: 'From',
+    toLabel: 'To',
+    photoLabel: 'Photo (visitor ID or face, optional)',
+    photoLabelShort: 'Photo',
+    noPhoto: 'No photo',
+    takePhoto: 'Take photo',
+    gallery: 'Gallery',
+    pickGallery: 'Choose from gallery',
+    removePhoto: 'Remove',
+    descriptionLabel: 'Additional notes (optional)',
+    generateQrBtn: 'Generate QR code',
+    saveChangesBtn: 'Save changes',
+    qrHint: "The QR code is generated from the visitor's ID number. Send it to them on WhatsApp — they show it at the front desk for faster entry.",
+    downloadBtn: 'Download',
+    shareBtn: 'Share',
+    registerAnotherBtn: 'Register another visitor',
+    editBtn: 'Edit',
+    deleteBtn: 'Delete',
+    emptyRegistro: 'No one is registered yet. Tap "+ New" to add the first one.',
+    emptySearch: 'Nothing matches that search.',
+    emptyMisVisitantes: "You haven't registered any visitors yet.",
+    badgeInquilino: 'Resident',
+    badgeVisitante: 'Visitor',
+    newRecordTitle: 'New record',
+    editRecordTitle: 'Edit record',
+    typeLabel: 'Type',
+    fullNameLabel: 'Full name',
+    stayFromLabel: 'Stay start',
+    stayToLabel: 'Stay end',
+    cancelBtn: 'Cancel',
+    saveBtn: 'Save',
+    notFound: 'Not found',
+    inquilinoAccessOk: 'Resident — access granted',
+    nameLabel: 'Name',
+    visitToAptoLabel: 'Visiting apartment',
+    visitanteActive: 'Visitor — stay is active',
+    visitanteUpcoming: "Visitor — stay hasn't started yet",
+    visitanteExpired: 'Your stay has ended. Thanks for visiting!'
+  }
+};
+
+const LANG_KEY = 'app-lang';
+let currentLang = localStorage.getItem(LANG_KEY) || 'es';
+
+function t(key){
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.es[key]) || key;
+}
+
+function applyLanguage(){
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
+  document.querySelectorAll('.pref-btn[data-lang]').forEach(btn=>{
+    btn.classList.toggle('on', btn.dataset.lang === currentLang);
+  });
+  // Refrescar textos generados dinámicamente que ya estén en pantalla
+  if(typeof people !== 'undefined' && people.length){ renderList(); updateCount(); }
+  if($('ownerAptoChip') && $('ownerAptoChip').textContent){
+    $('ownerAptoChip').textContent = t('aptoChipPrefix') + ' ' + getOwnerAptos().join(', ');
+  }
+  if($('generarBtn')){
+    try{ $('generarBtn').textContent = editingOwnerCedula ? t('saveChangesBtn') : t('generateQrBtn'); }
+    catch(e){ $('generarBtn').textContent = t('generateQrBtn'); }
+  }
+}
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  applyLanguage();
+}
+
+document.querySelectorAll('.pref-btn[data-lang]').forEach(btn=>{
+  btn.addEventListener('click', ()=> setLang(btn.dataset.lang));
+});
+
+// ============================================================
+// TAMAÑO DE LETRA
+// ============================================================
+const FONT_KEY = 'app-font-scale';
+function applyFontScale(){
+  const large = localStorage.getItem(FONT_KEY) === 'large';
+  document.body.classList.toggle('text-lg', large);
+  document.querySelectorAll('[id^="fontSizeBtn"]').forEach(btn=>{
+    btn.classList.toggle('on', large);
+  });
+}
+document.querySelectorAll('[id^="fontSizeBtn"]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const large = localStorage.getItem(FONT_KEY) === 'large';
+    localStorage.setItem(FONT_KEY, large ? 'normal' : 'large');
+    applyFontScale();
+  });
+});
+
 let unsubscribePersonas = null;
 let unsubscribeMisVisitantes = null;
 const ROLE_KEY = 'app-role';
-const OWNER_APTO_KEY = 'mi-apartamento';
+const OWNER_APTOS_KEY = 'mis-apartamentos'; // JSON array, p.ej. ["502","503"]
 
 function getSavedRole(){ return localStorage.getItem(ROLE_KEY) || ''; }
 function setSavedRole(r){ localStorage.setItem(ROLE_KEY, r); }
-function getOwnerApto(){ return localStorage.getItem(OWNER_APTO_KEY) || ''; }
-function setOwnerApto(v){ localStorage.setItem(OWNER_APTO_KEY, v); }
+
+function getOwnerAptos(){
+  try{
+    const raw = localStorage.getItem(OWNER_APTOS_KEY);
+    if(raw){
+      const arr = JSON.parse(raw);
+      if(Array.isArray(arr) && arr.length) return arr;
+    }
+    // Compatibilidad con la versión anterior (un solo apartamento guardado como texto plano)
+    const legacy = localStorage.getItem('mi-apartamento');
+    if(legacy) return [legacy];
+  }catch(e){}
+  return [];
+}
+function setOwnerAptos(arr){
+  localStorage.setItem(OWNER_APTOS_KEY, JSON.stringify(arr));
+  localStorage.removeItem('mi-apartamento');
+}
+function getOwnerApto(){ return getOwnerAptos()[0] || ''; } // apartamento principal, uso general
+
+function renderAptoInputRows(values){
+  const box = $('ownerAptoInputs');
+  const list = values && values.length ? values : [''];
+  box.innerHTML = list.map((v, i) => `
+    <div class="apto-input-row">
+      <div class="field">
+        <label data-i18n="apartmentLabel">${I18N[currentLang].apartmentLabel}</label>
+        <input type="text" class="mono-input owner-apto-field" value="${escapeHtml(v)}" placeholder="Ej. 502">
+      </div>
+      ${list.length > 1 ? `<button type="button" class="apto-remove-btn" data-removeidx="${i}">✕</button>` : ''}
+    </div>
+  `).join('');
+  box.querySelectorAll('[data-removeidx]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = Number(btn.dataset.removeidx);
+      const current = collectAptoInputs();
+      current.splice(idx, 1);
+      renderAptoInputRows(current.length ? current : ['']);
+    });
+  });
+}
+
+function collectAptoInputs(){
+  return Array.from(document.querySelectorAll('.owner-apto-field')).map(i=>i.value);
+}
+
+$('addAptoBtn').addEventListener('click', ()=>{
+  const current = collectAptoInputs();
+  current.push('');
+  renderAptoInputRows(current);
+});
+
+function openOwnerSetup(){
+  renderAptoInputRows(getOwnerAptos());
+  $('ownerSetupScreen').style.display = 'flex';
+}
 
 function hideAllScreens(){
   ['roleScreen','loginScreen','ownerSetupScreen','appRoot','ownerRoot'].forEach(id=>{
@@ -677,18 +1020,18 @@ document.querySelectorAll('.role-btn').forEach(btn=>{
     if(role === 'owner'){
       setSavedRole('owner');
       hideAllScreens();
-      if(getOwnerApto()){
+      if(getOwnerAptos().length){
         signInOwner();
       }else{
-        $('ownerSetupScreen').style.display = 'flex';
+        openOwnerSetup();
       }
     }else{
       setSavedRole(role); // 'concierge' o 'admin'
       hideAllScreens();
-      $('loginTitleText').textContent = role === 'admin' ? '🏖️ Administrador' : '🏖️ Portería';
+      $('loginTitleText').textContent = role === 'admin' ? I18N[currentLang].loginTitleAdmin : I18N[currentLang].loginTitlePorteria;
       $('loginSubText').textContent = role === 'admin'
-        ? 'Acceso de administración — corrige cualquier registro'
-        : 'Acceso del personal de portería';
+        ? I18N[currentLang].adminLoginSub
+        : I18N[currentLang].staffLoginSub;
       $('loginScreen').style.display = 'flex';
     }
   });
@@ -704,10 +1047,16 @@ $('backFromOwnerBtn').addEventListener('click', ()=>{
 });
 
 $('ownerContinueBtn').addEventListener('click', ()=>{
-  const v = $('ownerAptoInput').value.trim();
-  if(!v){ showToast('Escribe tu número de apartamento.'); return; }
-  setOwnerApto(v);
+  const values = collectAptoInputs().map(v=>v.trim()).filter(Boolean);
+  const unique = [...new Set(values)];
+  if(!unique.length){ showToast(I18N[currentLang].toastNoApto); return; }
+  setOwnerAptos(unique);
   signInOwner();
+});
+
+$('ownerAptoChip').addEventListener('click', ()=>{
+  hideAllScreens();
+  openOwnerSetup();
 });
 
 async function signInOwner(){
@@ -730,7 +1079,8 @@ auth.onAuthStateChanged((user)=>{
     if(isAnonymous && role === 'owner'){
       hideAllScreens();
       $('ownerRoot').style.display = 'block';
-      $('ownerAptoChip').textContent = 'Apto ' + getOwnerApto();
+      $('ownerAptoChip').textContent = (I18N[currentLang].aptoChipPrefix) + ' ' + getOwnerAptos().join(', ');
+      populateAptoSelect();
       startMisVisitantesListener();
     }else if(!isAnonymous && (role === 'concierge' || role === 'admin')){
       hideAllScreens();
@@ -749,13 +1099,13 @@ auth.onAuthStateChanged((user)=>{
     hideAllScreens();
     const role = getSavedRole();
     if(role === 'owner'){
-      if(getOwnerApto()){
+      if(getOwnerAptos().length){
         signInOwner();
       }else{
-        $('ownerSetupScreen').style.display = 'flex';
+        openOwnerSetup();
       }
     }else if(role === 'concierge' || role === 'admin'){
-      $('loginTitleText').textContent = role === 'admin' ? '🏖️ Administrador' : '🏖️ Portería';
+      $('loginTitleText').textContent = role === 'admin' ? I18N[currentLang].loginTitleAdmin : I18N[currentLang].loginTitlePorteria;
       $('loginScreen').style.display = 'flex';
     }else{
       showRoleScreen();
@@ -869,9 +1219,9 @@ function runVerify(){
   if(!p){
     box.innerHTML = `
       <div class="result bad">
-        <div class="result-head"><div class="dot"></div><div class="result-title">No encontrado</div></div>
+        <div class="result-head"><div class="dot"></div><div class="result-title">${t('notFound')}</div></div>
         <div class="result-grid">
-          <dt>Cédula</dt><dd>${escapeHtml(raw)}</dd>
+          <dt>${t('cedulaLabel')}</dt><dd>${escapeHtml(raw)}</dd>
         </div>
       </div>`;
     return;
@@ -881,12 +1231,12 @@ function runVerify(){
       <div class="result ok">
         <div class="result-head">
           ${p.foto ? `<img class="result-photo" src="${p.foto}" alt="">` : `<div class="dot"></div>`}
-          <div class="result-title">Inquilino — acceso permitido</div>
+          <div class="result-title">${t('inquilinoAccessOk')}</div>
         </div>
         <div class="result-grid">
-          <dt>Nombre</dt><dd>${escapeHtml(p.nombre)}</dd>
-          <dt>Apartamento</dt><dd>${escapeHtml(p.apartamento)}</dd>
-          <dt>Cédula</dt><dd>${escapeHtml(p.cedula)}</dd>
+          <dt>${t('nameLabel')}</dt><dd>${escapeHtml(p.nombre)}</dd>
+          <dt>${t('apartmentLabel')}</dt><dd>${escapeHtml(p.apartamento)}</dd>
+          <dt>${t('cedulaLabel')}</dt><dd>${escapeHtml(p.cedula)}</dd>
         </div>
       </div>`;
     return;
@@ -894,9 +1244,9 @@ function runVerify(){
   // visitante
   const st = estadoVisitante(p);
   let cls, titulo;
-  if(st === 'active'){ cls='ok'; titulo='Visitante — estadía vigente'; }
-  else if(st === 'upcoming'){ cls='warn'; titulo='Visitante — la estadía aún no inicia'; }
-  else { cls='bad'; titulo='Período de su estadía venció. ¡Gracias por su visita!'; }
+  if(st === 'active'){ cls='ok'; titulo=t('visitanteActive'); }
+  else if(st === 'upcoming'){ cls='warn'; titulo=t('visitanteUpcoming'); }
+  else { cls='bad'; titulo=t('visitanteExpired'); }
   box.innerHTML = `
     <div class="result ${cls}">
       <div class="result-head">
@@ -904,11 +1254,11 @@ function runVerify(){
         <div class="result-title">${titulo}</div>
       </div>
       <div class="result-grid">
-        <dt>Nombre</dt><dd>${escapeHtml(p.nombre)}</dd>
-        <dt>Visita a apto</dt><dd>${escapeHtml(p.apartamento)}</dd>
-        <dt>Cédula</dt><dd>${escapeHtml(p.cedula)}</dd>
-        <dt>Desde</dt><dd>${fmtDate(p.fecha_inicio)}</dd>
-        <dt>Hasta</dt><dd>${fmtDate(p.fecha_fin)}</dd>
+        <dt>${t('nameLabel')}</dt><dd>${escapeHtml(p.nombre)}</dd>
+        <dt>${t('visitToAptoLabel')}</dt><dd>${escapeHtml(p.apartamento)}</dd>
+        <dt>${t('cedulaLabel')}</dt><dd>${escapeHtml(p.cedula)}</dd>
+        <dt>${t('fromLabel')}</dt><dd>${fmtDate(p.fecha_inicio)}</dd>
+        <dt>${t('toLabel')}</dt><dd>${fmtDate(p.fecha_fin)}</dd>
       </div>
       ${p.descripcion ? `<div class="result-note">"${escapeHtml(p.descripcion)}"</div>` : ''}
     </div>`;
@@ -1103,14 +1453,14 @@ function renderList(){
   }).sort((a,b)=> a.nombre.localeCompare(b.nombre));
 
   if(filtered.length === 0){
-    container.innerHTML = `<div class="empty-hint">${people.length===0 ? 'Aún no hay personas registradas. Toca "+ Nuevo" para agregar la primera.' : 'Nada coincide con esa búsqueda.'}</div>`;
+    container.innerHTML = `<div class="empty-hint">${people.length===0 ? t('emptyRegistro') : t('emptySearch')}</div>`;
     return;
   }
 
   container.innerHTML = filtered.map(p=>{
     const badge = p.tipo === 'inquilino'
-      ? `<span class="badge inquilino">Inquilino</span>`
-      : `<span class="badge visitante">Visitante</span>`;
+      ? `<span class="badge inquilino">${t('badgeInquilino')}</span>`
+      : `<span class="badge visitante">${t('badgeVisitante')}</span>`;
     const dates = p.tipo === 'visitante'
       ? `<div class="person-dates">Estadía: ${fmtDate(p.fecha_inicio)} → ${fmtDate(p.fecha_fin)}</div>`
       : '';
@@ -1123,20 +1473,20 @@ function renderList(){
     return `
       <div class="person-card">
         <div class="person-top">
-          <div class="person-left">
-            ${avatar}
-            <div>
-              <div class="person-name">${escapeHtml(p.nombre)}</div>
-              <div class="person-meta">CC ${escapeHtml(p.cedula)} · Apto ${escapeHtml(p.apartamento)}</div>
-            </div>
+          <div class="person-info">
+            <div class="person-name">${escapeHtml(p.nombre)}</div>
+            <div class="person-meta">CC ${escapeHtml(p.cedula)} · Apto ${escapeHtml(p.apartamento)}</div>
           </div>
-          ${badge}
+          <div class="person-right">
+            ${badge}
+            ${avatar}
+          </div>
         </div>
         ${dates}
         ${descripcion}
         <div class="person-actions">
-          <button data-edit="${escapeHtml(p.cedula)}">Editar</button>
-          <button class="danger" data-del="${escapeHtml(p.cedula)}">Eliminar</button>
+          <button data-edit="${escapeHtml(p.cedula)}">${t('editBtn')}</button>
+          <button class="danger" data-del="${escapeHtml(p.cedula)}">${t('deleteBtn')}</button>
         </div>
       </div>`;
   }).join('');
@@ -1172,7 +1522,7 @@ $('btnVisitante').addEventListener('click', ()=>setType('visitante'));
 
 function openAdd(){
   editingCedula = null;
-  $('sheetTitle').textContent = 'Nuevo registro';
+  $('sheetTitle').textContent = t('newRecordTitle');
   $('fNombre').value = '';
   $('fCedula').value = '';
   $('fCedula').removeAttribute('disabled');
@@ -1190,7 +1540,7 @@ function openEdit(cedula){
   const p = people.find(x=>x.cedula === cedula);
   if(!p) return;
   editingCedula = cedula;
-  $('sheetTitle').textContent = 'Editar registro';
+  $('sheetTitle').textContent = t('editRecordTitle');
   $('fNombre').value = p.nombre;
   $('fCedula').value = p.cedula;
   $('fCedula').setAttribute('disabled','disabled');
@@ -1513,21 +1863,35 @@ function ownerClearErrors(){
   ['errNombre','errCedula','errFechas'].forEach(id=>$(id).classList.remove('show'));
 }
 
+function populateAptoSelect(){
+  const aptos = getOwnerAptos();
+  const field = $('vAptoField');
+  const select = $('vApto');
+  if(aptos.length > 1){
+    select.innerHTML = aptos.map(a=>`<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+    field.style.display = 'block';
+  }else{
+    field.style.display = 'none';
+  }
+}
+
 function resetOwnerForm(){
   $('vNombre').value = '';
   $('vCedula').value = '';
   $('vInicio').value = todayISO();
   $('vFin').value = '';
   $('vDescripcion').value = '';
+  if(getOwnerAptos().length > 1){ $('vApto').value = getOwnerAptos()[0]; }
   ownerSetPhotoPreview(null);
   ownerClearErrors();
   editingOwnerCedula = null;
-  $('generarBtn').textContent = 'Generar código QR';
+  $('generarBtn').textContent = t('generateQrBtn');
 }
 
 $('generarBtn').addEventListener('click', async ()=>{
   ownerClearErrors();
-  const apto = getOwnerApto();
+  const aptos = getOwnerAptos();
+  const apto = aptos.length > 1 ? $('vApto').value : (aptos[0] || '');
   const nombre = $('vNombre').value.trim();
   const cedula = $('vCedula').value.trim().replace(/\s+/g,'');
   const inicio = $('vInicio').value || todayISO();
@@ -1565,7 +1929,7 @@ $('generarBtn').addEventListener('click', async ()=>{
     }
   }
   $('generarBtn').disabled = false;
-  $('generarBtn').textContent = 'Generar código QR';
+  $('generarBtn').textContent = t('generateQrBtn');
 });
 
 function showOwnerResult(rec){
@@ -1622,22 +1986,24 @@ $('nuevoBtn').addEventListener('click', ()=>{
 // ---- Mis visitantes ----
 function startMisVisitantesListener(){
   if(unsubscribeMisVisitantes) return;
-  const apto = getOwnerApto();
+  const aptos = getOwnerAptos();
+  if(!aptos.length) return;
   unsubscribeMisVisitantes = personasRef
     .where('tipo', '==', 'visitante')
-    .where('apartamento', '==', apto)
+    .where('apartamento', 'in', aptos.slice(0, 30))
     .onSnapshot((snapshot)=>{
       const visitantes = snapshot.docs.map(d => ({ cedula: d.id, ...d.data() }));
       renderMisVisitantes(visitantes);
     }, (err)=>{
-      showToast('No se pudo cargar tu lista de visitantes.');
+      console.error(err);
+      showToast('No se pudo cargar tu lista: ' + (err.message || err.code || 'error desconocido'));
     });
 }
 
 function renderMisVisitantes(visitantes){
   const box = $('misVisitantesList');
   if(visitantes.length === 0){
-    box.innerHTML = `<div class="empty-hint">Todavía no has registrado visitantes.</div>`;
+    box.innerHTML = `<div class="empty-hint">${t('emptyMisVisitantes')}</div>`;
     return;
   }
   visitantes.sort((a,b)=> (b.fecha_inicio||'').localeCompare(a.fecha_inicio||''));
@@ -1649,19 +2015,19 @@ function renderMisVisitantes(visitantes){
     return `
       <div class="person-card">
         <div class="person-top">
-          <div class="person-left">
+          <div class="person-info">
+            <div class="person-name">${escapeHtml(p.nombre)}</div>
+            <div class="person-meta">CC ${escapeHtml(p.cedula)} · Apto ${escapeHtml(p.apartamento)}</div>
+          </div>
+          <div class="person-right">
             ${avatar}
-            <div>
-              <div class="person-name">${escapeHtml(p.nombre)}</div>
-              <div class="person-meta">CC ${escapeHtml(p.cedula)}</div>
-            </div>
           </div>
         </div>
         <div class="person-dates">Estadía: ${fmtDate(p.fecha_inicio)} → ${p.fecha_fin ? fmtDate(p.fecha_fin) : 'sin definir'}</div>
         ${descripcion}
         <div class="person-actions">
-          <button data-oedit="${escapeHtml(p.cedula)}">Editar</button>
-          <button class="danger" data-odel="${escapeHtml(p.cedula)}">Eliminar</button>
+          <button data-oedit="${escapeHtml(p.cedula)}">${t('editBtn')}</button>
+          <button class="danger" data-odel="${escapeHtml(p.cedula)}">${t('deleteBtn')}</button>
         </div>
       </div>`;
   }).join('');
@@ -1678,6 +2044,7 @@ function openOwnerEdit(cedula, visitantes){
   const p = visitantes.find(v=>v.cedula === cedula);
   if(!p) return;
   editingOwnerCedula = cedula;
+  if(getOwnerAptos().length > 1){ $('vApto').value = p.apartamento; }
   $('vNombre').value = p.nombre;
   $('vCedula').value = p.cedula;
   $('vInicio').value = p.fecha_inicio || todayISO();
@@ -1685,7 +2052,7 @@ function openOwnerEdit(cedula, visitantes){
   $('vDescripcion').value = p.descripcion || '';
   ownerSetPhotoPreview(p.foto || null);
   ownerClearErrors();
-  $('generarBtn').textContent = 'Guardar cambios';
+  $('generarBtn').textContent = t('saveChangesBtn');
   document.querySelector('.otab[data-ownertab="nuevo"]').click();
   $('ownerResultScreen').style.display = 'none';
   $('ownerFormScreen').style.display = 'block';
@@ -1699,6 +2066,9 @@ async function deleteOwnerVisitante(cedula){
     showToast('No se pudo eliminar. Revisa tu conexión.');
   }
 }
+
+applyLanguage();
+applyFontScale();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
