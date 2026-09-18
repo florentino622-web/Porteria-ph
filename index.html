@@ -488,7 +488,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif10</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif11</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -555,7 +555,12 @@
   </section>
 
   <section id="tab-apartamentos">
-    <div class="card" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
+    <div class="pref-bar" style="justify-content:flex-start;margin-bottom:10px;">
+      <button class="pref-btn on" id="aptoModeNewBtn" data-i18n="modeNewOwner">Propietario nuevo</button>
+      <button class="pref-btn" id="aptoModeExistingBtn" data-i18n="modeExistingOwner">Agregar apto a uno existente</button>
+    </div>
+
+    <div class="card" id="aptoNewOwnerCard" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
       <h3 id="aptoFormTitle" style="margin:0 0 14px;font-size:15px;" data-i18n="newApartmentTitle">Registrar apartamento</h3>
       <div class="field">
         <label data-i18n="apartmentLabel">Apartamento</label>
@@ -583,8 +588,54 @@
         <button class="btn-save" id="aptoSaveBtn" data-i18n="saveApartmentBtn">Guardar apartamento</button>
       </div>
     </div>
+
+    <div class="card" id="aptoExistingOwnerCard" style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
+      <h3 style="margin:0 0 14px;font-size:15px;" data-i18n="addAptoToExistingTitle">Agregar apartamento a propietario existente</h3>
+      <div class="field">
+        <label data-i18n="existingOwnerLabel">Propietario existente</label>
+        <select id="existingOwnerSelect"></select>
+        <div class="err" id="errExistingOwner" data-i18n="errExistingOwner">Selecciona un propietario.</div>
+      </div>
+      <div class="field">
+        <label data-i18n="apartmentLabel">Nuevo apartamento</label>
+        <input type="text" class="mono" id="existingAptoNumero" placeholder="Ej. 503">
+        <div class="err" id="errExistingAptoNumero" data-i18n="errAptoNumero">Escribe el número de apartamento.</div>
+      </div>
+      <div class="hint" style="text-align:left;margin-top:0;" data-i18n="existingOwnerHint">No hace falta usuario ni contraseña — se vincula directo a la cuenta que ya tiene.</div>
+      <div class="sheet-actions" style="margin-top:12px;">
+        <button class="btn-save" id="existingAptoSaveBtn" style="width:100%;" data-i18n="linkApartmentBtn">Vincular apartamento</button>
+      </div>
+    </div>
+
     <div id="apartamentosList"></div>
   </section>
+</div>
+
+<div class="overlay" id="secundarioOverlay">
+  <div class="sheet">
+    <h2 data-i18n="addSecundarioTitle">Agregar propietario secundario</h2>
+    <div class="hint" style="text-align:left;margin-top:0;" data-i18n="secundarioHint">Puede iniciar sesión y ver la información del apartamento, pero no puede registrar ni editar visitantes — solo el propietario principal puede.</div>
+    <div class="field">
+      <label data-i18n="ownerNameLabel">Nombre</label>
+      <input type="text" id="secNombre" placeholder="Nombre y apellido">
+      <div class="err" id="errSecNombre" data-i18n="errAptoNombre">Escribe el nombre del propietario.</div>
+    </div>
+    <div class="field">
+      <label data-i18n="usernameLabel">Usuario</label>
+      <input type="text" class="mono" id="secUsuario" autocomplete="off" placeholder="Ej. maria502">
+      <div class="err" id="errSecUsuario" data-i18n="errAptoUsuario">Escribe un nombre de usuario.</div>
+    </div>
+    <div class="field">
+      <label data-i18n="passwordLabel">Contraseña</label>
+      <input type="text" class="mono" id="secPassword" autocomplete="off" placeholder="Mínimo 6 caracteres">
+      <div class="err" id="errSecPassword" data-i18n="errAptoPassword">La contraseña debe tener al menos 6 caracteres.</div>
+    </div>
+    <input type="hidden" id="secAptoNumero">
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="secCancelBtn" data-i18n="cancelBtn">Cancelar</button>
+      <button class="btn-save" id="secSaveBtn" data-i18n="saveBtn">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -702,6 +753,7 @@
   </div>
 
   <section id="ownertab-nuevo" class="active">
+    <div id="ownerNoPrincipalMsg" style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;color:var(--text-dim);font-size:14px;line-height:1.6;" data-i18n="secondaryCannotAdd">Tu cuenta es propietario secundario. Puedes ver los visitantes y el saldo, pero registrar nuevos visitantes solo lo puede hacer el propietario principal.</div>
     <div id="ownerFormScreen">
       <div class="card" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;">
         <div class="field apto-select-field" id="vAptoField" style="display:none;">
@@ -939,7 +991,22 @@ const I18N = {
     emptyApartamentos: 'Aún no hay apartamentos registrados.',
     apartmentDeleted: 'Apartamento eliminado.',
     usernameTakenNoRecord: 'Ese usuario ya existe pero no encontramos su apartamento. Usa otro nombre de usuario.',
-    apartmentSaved: 'Apartamento guardado.'
+    apartmentSaved: 'Apartamento guardado.',
+    modeNewOwner: 'Propietario nuevo',
+    modeExistingOwner: 'Agregar apto a uno existente',
+    addAptoToExistingTitle: 'Agregar apartamento a propietario existente',
+    existingOwnerLabel: 'Propietario existente',
+    errExistingOwner: 'Selecciona un propietario.',
+    existingOwnerHint: 'No hace falta usuario ni contraseña — se vincula directo a la cuenta que ya tiene.',
+    linkApartmentBtn: 'Vincular apartamento',
+    noExistingOwners: 'Todavía no hay propietarios registrados',
+    addSecundarioTitle: 'Agregar propietario secundario',
+    secundarioHint: 'Puede iniciar sesión y ver la información del apartamento, pero no puede registrar ni editar visitantes — solo el propietario principal puede.',
+    addSecondaryBtn: 'Agregar secundario',
+    secondaryTag: 'Secundario',
+    principalTag: 'Principal',
+    secondaryAdded: 'Propietario secundario agregado.',
+    secondaryCannotAdd: 'Tu cuenta es propietario secundario. Puedes ver los visitantes y el saldo, pero registrar nuevos visitantes solo lo puede hacer el propietario principal.'
   },
   en: {
     appTitle: '🏖️ El Palmar Residences',
@@ -1048,7 +1115,22 @@ const I18N = {
     emptyApartamentos: 'No apartments registered yet.',
     apartmentDeleted: 'Apartment deleted.',
     usernameTakenNoRecord: "That username already exists but we couldn't find its apartment. Use a different username.",
-    apartmentSaved: 'Apartment saved.'
+    apartmentSaved: 'Apartment saved.',
+    modeNewOwner: 'New owner',
+    modeExistingOwner: 'Add apartment to existing',
+    addAptoToExistingTitle: 'Add apartment to an existing owner',
+    existingOwnerLabel: 'Existing owner',
+    errExistingOwner: 'Select an owner.',
+    existingOwnerHint: "No username or password needed — it links straight to the account they already have.",
+    linkApartmentBtn: 'Link apartment',
+    noExistingOwners: 'No owners registered yet',
+    addSecundarioTitle: 'Add secondary owner',
+    secundarioHint: "Can sign in and view the apartment's information, but cannot register or edit visitors — only the main owner can.",
+    addSecondaryBtn: 'Add secondary',
+    secondaryTag: 'Secondary',
+    principalTag: 'Main',
+    secondaryAdded: 'Secondary owner added.',
+    secondaryCannotAdd: 'Your account is a secondary owner. You can view visitors and the balance, but only the main owner can register new visitors.'
   }
 };
 
@@ -1122,11 +1204,13 @@ let lastSaldos = {};
 let unsubscribeAdminSaldos = null;
 let unsubscribeAdminApartamentos = null;
 const ROLE_KEY = 'app-role';
-let ownerAptosCache = []; // apartamentos verificados (Firestore), NO editable por el propietario
+let ownerAptosCache = []; // TODOS los apartamentos (principal + secundario), verificados en Firestore
+let ownerPrincipalAptosCache = []; // solo donde es principal (puede registrar visitantes)
 
 function getSavedRole(){ return localStorage.getItem(ROLE_KEY) || ''; }
 function setSavedRole(r){ localStorage.setItem(ROLE_KEY, r); }
 function getOwnerAptos(){ return ownerAptosCache; }
+function getOwnerPrincipalAptos(){ return ownerPrincipalAptosCache; }
 function getOwnerApto(){ return ownerAptosCache[0] || ''; }
 
 function usernameToEmail(username){
@@ -1135,11 +1219,19 @@ function usernameToEmail(username){
 
 async function fetchOwnerApartments(uid){
   try{
-    const snap = await apartamentosRef.where('uid', '==', uid).get();
-    ownerAptosCache = snap.docs.map(d => d.id).sort((a,b)=> a.localeCompare(b, undefined, {numeric:true}));
+    const [principalSnap, secSnap] = await Promise.all([
+      apartamentosRef.where('uid', '==', uid).get(),
+      apartamentosRef.where('secundarios_uids', 'array-contains', uid).get()
+    ]);
+    const principal = principalSnap.docs.map(d => d.id);
+    const secundario = secSnap.docs.map(d => d.id);
+    ownerPrincipalAptosCache = [...principal].sort((a,b)=> a.localeCompare(b, undefined, {numeric:true}));
+    ownerAptosCache = Array.from(new Set([...principal, ...secundario]))
+      .sort((a,b)=> a.localeCompare(b, undefined, {numeric:true}));
   }catch(e){
     console.error(e);
     ownerAptosCache = [];
+    ownerPrincipalAptosCache = [];
   }
   return ownerAptosCache;
 }
@@ -1397,11 +1489,15 @@ function applyStaffRoleUI(role){
 let editingSaldoApto = null;
 
 // ---- Gestión de apartamentos y propietarios (Administrador) ----
+let lastApartamentosList = [];
+
 function startAdminApartamentosListener(){
   if(unsubscribeAdminApartamentos) return;
   unsubscribeAdminApartamentos = apartamentosRef.onSnapshot((snapshot)=>{
     const aptos = snapshot.docs.map(d => ({ numero: d.id, ...d.data() }));
+    lastApartamentosList = aptos;
     renderApartamentosList(aptos);
+    populateExistingOwnerSelect(aptos);
   }, (err)=>{
     console.error(err);
   });
@@ -1414,20 +1510,27 @@ function renderApartamentosList(aptos){
     return;
   }
   aptos.sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
-  box.innerHTML = aptos.map(a => `
+  box.innerHTML = aptos.map(a => {
+    const secundarios = a.secundarios || [];
+    const secundariosHtml = secundarios.length
+      ? secundarios.map(s => `<div class="person-meta">↳ ${escapeHtml(s.nombre)} (${escapeHtml(s.usuario)}) · <span data-i18n="secondaryTag">${t('secondaryTag')}</span></div>`).join('')
+      : '';
+    return `
     <div class="person-card">
       <div class="person-top">
         <div class="person-info">
           <div class="person-name">${t('apartmentLabel')} ${escapeHtml(a.numero)}</div>
-          <div class="person-meta">${escapeHtml(a.propietario_nombre || '')}</div>
+          <div class="person-meta">${escapeHtml(a.propietario_nombre || '')} · <span style="color:var(--accent-owner);">${t('principalTag')}</span></div>
           <div class="person-meta">${t('usernameLabel')}: ${escapeHtml(a.usuario || '')}</div>
+          ${secundariosHtml}
         </div>
       </div>
       <div class="person-actions">
-        <button data-delapto="${escapeHtml(a.numero)}">${t('deleteBtn')}</button>
+        <button data-addsec="${escapeHtml(a.numero)}">${t('addSecondaryBtn')}</button>
+        <button class="danger" data-delapto="${escapeHtml(a.numero)}">${t('deleteBtn')}</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   box.querySelectorAll('[data-delapto]').forEach(b=>{
     b.addEventListener('click', async ()=>{
@@ -1438,6 +1541,9 @@ function renderApartamentosList(aptos){
         showToast('Error: ' + (e.code || e.message));
       }
     });
+  });
+  box.querySelectorAll('[data-addsec]').forEach(b=>{
+    b.addEventListener('click', ()=> openSecundarioOverlay(b.dataset.addsec));
   });
 }
 
@@ -1515,6 +1621,150 @@ $('aptoSaveBtn').addEventListener('click', async ()=>{
   }
   $('aptoSaveBtn').disabled = false;
   $('aptoSaveBtn').textContent = t('saveApartmentBtn');
+});
+
+// ---- Modo: agregar apartamento a un propietario ya existente ----
+$('aptoModeNewBtn').addEventListener('click', ()=>{
+  $('aptoModeNewBtn').classList.add('on');
+  $('aptoModeExistingBtn').classList.remove('on');
+  $('aptoNewOwnerCard').style.display = 'block';
+  $('aptoExistingOwnerCard').style.display = 'none';
+});
+$('aptoModeExistingBtn').addEventListener('click', ()=>{
+  $('aptoModeExistingBtn').classList.add('on');
+  $('aptoModeNewBtn').classList.remove('on');
+  $('aptoExistingOwnerCard').style.display = 'block';
+  $('aptoNewOwnerCard').style.display = 'none';
+});
+
+function populateExistingOwnerSelect(aptos){
+  const select = $('existingOwnerSelect');
+  const seen = new Map(); // usuario -> {nombre, usuario, uid}
+  aptos.forEach(a=>{
+    if(a.usuario && !seen.has(a.usuario)){
+      seen.set(a.usuario, { nombre: a.propietario_nombre, usuario: a.usuario, uid: a.uid });
+    }
+  });
+  const owners = Array.from(seen.values()).sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+  if(!owners.length){
+    select.innerHTML = `<option value="">${t('noExistingOwners')}</option>`;
+    return;
+  }
+  select.innerHTML = owners.map(o=>
+    `<option value="${escapeHtml(o.uid)}" data-usuario="${escapeHtml(o.usuario)}" data-nombre="${escapeHtml(o.nombre||'')}">${escapeHtml(o.nombre || o.usuario)} (${escapeHtml(o.usuario)})</option>`
+  ).join('');
+}
+
+function clearExistingErrors(){
+  ['errExistingOwner','errExistingAptoNumero'].forEach(id=>$(id).classList.remove('show'));
+}
+
+$('existingAptoSaveBtn').addEventListener('click', async ()=>{
+  clearExistingErrors();
+  const select = $('existingOwnerSelect');
+  const opt = select.options[select.selectedIndex];
+  const numero = $('existingAptoNumero').value.trim();
+
+  let hasError = false;
+  if(!opt || !opt.value){ $('errExistingOwner').classList.add('show'); hasError = true; }
+  if(!numero){ $('errExistingAptoNumero').classList.add('show'); hasError = true; }
+  if(hasError) return;
+
+  $('existingAptoSaveBtn').disabled = true;
+  try{
+    await apartamentosRef.doc(numero).set({
+      propietario_nombre: opt.dataset.nombre,
+      usuario: opt.dataset.usuario,
+      uid: opt.value
+    });
+    showToast(t('apartmentSaved'));
+    $('existingAptoNumero').value = '';
+  }catch(e){
+    console.error(e);
+    showToast('Error: ' + (e.code || e.message));
+  }
+  $('existingAptoSaveBtn').disabled = false;
+});
+
+// ---- Propietarios secundarios ----
+function openSecundarioOverlay(numero){
+  $('secAptoNumero').value = numero;
+  $('secNombre').value = '';
+  $('secUsuario').value = '';
+  $('secPassword').value = '';
+  ['errSecNombre','errSecUsuario','errSecPassword'].forEach(id=>$(id).classList.remove('show'));
+  $('secundarioOverlay').classList.add('open');
+}
+$('secCancelBtn').addEventListener('click', ()=> $('secundarioOverlay').classList.remove('open'));
+$('secundarioOverlay').addEventListener('click', (e)=>{ if(e.target === $('secundarioOverlay')) $('secundarioOverlay').classList.remove('open'); });
+
+$('secSaveBtn').addEventListener('click', async ()=>{
+  ['errSecNombre','errSecUsuario','errSecPassword'].forEach(id=>$(id).classList.remove('show'));
+  const numero = $('secAptoNumero').value;
+  const nombre = $('secNombre').value.trim();
+  const usuario = $('secUsuario').value.trim().toLowerCase();
+  const password = $('secPassword').value;
+
+  let hasError = false;
+  if(!nombre){ $('errSecNombre').classList.add('show'); hasError = true; }
+  if(!usuario){ $('errSecUsuario').classList.add('show'); hasError = true; }
+  if(!password || password.length < 6){ $('errSecPassword').classList.add('show'); hasError = true; }
+  if(hasError) return;
+
+  $('secSaveBtn').disabled = true;
+  $('secSaveBtn').textContent = '...';
+  try{
+    const email = usernameToEmail(usuario);
+    let uid;
+    try{
+      const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+      uid = cred.user.uid;
+      await secondaryAuth.signOut();
+    }catch(createErr){
+      if(createErr.code === 'auth/email-already-in-use'){
+        const existing = await apartamentosRef.where('usuario', '==', usuario).limit(1).get();
+        if(existing.empty){
+          showToast(t('usernameTakenNoRecord'));
+          $('secSaveBtn').disabled = false;
+          $('secSaveBtn').textContent = t('saveBtn');
+          return;
+        }
+        uid = existing.docs[0].data().uid;
+      }else if(createErr.code === 'auth/weak-password'){
+        $('errSecPassword').classList.add('show');
+        $('secSaveBtn').disabled = false;
+        $('secSaveBtn').textContent = t('saveBtn');
+        return;
+      }else{
+        throw createErr;
+      }
+    }
+
+    const aptoDoc = lastApartamentosList.find(a=>a.numero === numero);
+    const secundariosActuales = (aptoDoc && aptoDoc.secundarios) || [];
+    const secundariosUidsActuales = (aptoDoc && aptoDoc.secundarios_uids) || [];
+
+    // Evitar duplicados si ya estaba agregado
+    const yaExiste = secundariosUidsActuales.includes(uid);
+    const nuevosSecundarios = yaExiste
+      ? secundariosActuales.map(s => s.uid === uid ? { nombre, usuario, uid } : s)
+      : secundariosActuales.concat([{ nombre, usuario, uid }]);
+    const nuevosUids = yaExiste ? secundariosUidsActuales : secundariosUidsActuales.concat([uid]);
+
+    await apartamentosRef.doc(numero).set({
+      secundarios: nuevosSecundarios,
+      secundarios_uids: nuevosUids
+    }, { merge: true });
+    await rolesRef.doc(uid).set({ role: 'owner' }, { merge: true });
+
+    showToast(t('secondaryAdded'));
+    $('secundarioOverlay').classList.remove('open');
+  }catch(e){
+    console.error(e);
+    showToast('Error: ' + (e.code || e.message));
+  }
+  $('secSaveBtn').disabled = false;
+  $('secSaveBtn').textContent = t('saveBtn');
 });
 
 function startAdminSaldosListener(){
@@ -2325,7 +2575,7 @@ function ownerClearErrors(){
 }
 
 function populateAptoSelect(){
-  const aptos = getOwnerAptos();
+  const aptos = getOwnerPrincipalAptos();
   const field = $('vAptoField');
   const select = $('vApto');
   if(aptos.length > 1){
@@ -2334,6 +2584,12 @@ function populateAptoSelect(){
   }else{
     field.style.display = 'none';
   }
+
+  // Si no es principal de NINGÚN apartamento, no puede registrar visitantes:
+  // se oculta el formulario y se muestra un aviso en su lugar.
+  const puedeAgregar = aptos.length > 0;
+  $('ownerFormScreen').style.display = puedeAgregar ? 'block' : 'none';
+  $('ownerNoPrincipalMsg').style.display = puedeAgregar ? 'none' : 'block';
 }
 
 function resetOwnerForm(){
@@ -2513,11 +2769,19 @@ function renderMisVisitantes(visitantes){
     return;
   }
   visitantes.sort((a,b)=> (b.fecha_inicio||'').localeCompare(a.fecha_inicio||''));
+  const principales = getOwnerPrincipalAptos();
   box.innerHTML = visitantes.map(p=>{
     const avatar = p.foto
       ? `<img class="avatar" src="${p.foto}" alt="">`
       : `<div class="avatar-placeholder">${escapeHtml(iniciales(p.nombre))}</div>`;
     const descripcion = p.descripcion ? `<div class="person-desc">"${escapeHtml(p.descripcion)}"</div>` : '';
+    const esPrincipal = principales.includes(p.apartamento);
+    const acciones = esPrincipal
+      ? `<div class="person-actions">
+          <button data-oedit="${escapeHtml(p.cedula)}">${t('editBtn')}</button>
+          <button class="danger" data-odel="${escapeHtml(p.cedula)}">${t('deleteBtn')}</button>
+        </div>`
+      : `<div class="person-meta" style="margin-top:8px;">${t('secondaryTag')}</div>`;
     return `
       <div class="person-card">
         <div class="person-top">
@@ -2531,10 +2795,7 @@ function renderMisVisitantes(visitantes){
         </div>
         <div class="person-dates">Estadía: ${fmtDate(p.fecha_inicio)} → ${p.fecha_fin ? fmtDate(p.fecha_fin) : 'sin definir'}</div>
         ${descripcion}
-        <div class="person-actions">
-          <button data-oedit="${escapeHtml(p.cedula)}">${t('editBtn')}</button>
-          <button class="danger" data-odel="${escapeHtml(p.cedula)}">${t('deleteBtn')}</button>
-        </div>
+        ${acciones}
       </div>`;
   }).join('');
 
