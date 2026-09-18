@@ -180,6 +180,137 @@ No requiere ningún cambio de Firebase — solo sube el `index.html` nuevo.
 
 ---
 
+## Cambio importante v-unif9 — Apartamentos y propietarios reales
+
+Este cambio es grande: ahora el **Administrador registra cada apartamento y a su propietario
+principal**, con usuario y contraseña reales. Los propietarios ya NO escriben su apartamento
+libremente — solo pueden ver y usar los apartamentos que la administración les asignó.
+
+### Qué cambia para cada quien
+
+- **Administrador**: pestaña nueva **"Apartamentos"**. Ahí registra: número de apartamento,
+  nombre del propietario, usuario y contraseña. Si vuelve a usar el mismo usuario para un
+  segundo apartamento (mismo propietario, dos unidades), se vincula a la misma cuenta — no
+  hace falta crear una cuenta nueva por cada apartamento.
+- **Propietario**: ya no escribe su número de apartamento — ahora inicia sesión con el
+  **usuario y contraseña** que le dio la administración. Después de entrar, solo ve y puede
+  registrar visitantes para los apartamentos que tiene asignados.
+- **Portería**: sin cambios.
+
+### ⚠️ Paso obligatorio — actualizar las reglas de Firestore
+
+Las reglas cambian bastante porque ahora hay que verificar de verdad quién es cada quien
+(antes era más simple, basado solo en si la sesión era anónima o no). Ve a Firebase console →
+Firestore Database → pestaña **Rules**, borra todo y pega esto:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function getRole() {
+      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role;
+    }
+    function isAdmin() { return request.auth != null && getRole() == 'admin'; }
+    function isConcierge() { return request.auth != null && getRole() == 'concierge'; }
+    function isStaff() { return isAdmin() || isConcierge(); }
+    function isOwnerOfApto(apto) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/apartamentos/$(apto)).data.uid == request.auth.uid;
+    }
+
+    match /roles/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if isAdmin();
+    }
+
+    match /apartamentos/{numero} {
+      allow read: if isStaff() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /personas/{cedula} {
+      allow read, write: if isStaff();
+
+      allow read: if request.auth != null && resource.data.tipo == 'visitante'
+                  && isOwnerOfApto(resource.data.apartamento);
+
+      allow create: if request.auth != null && request.resource.data.tipo == 'visitante'
+                    && isOwnerOfApto(request.resource.data.apartamento);
+
+      allow update: if request.auth != null && request.resource.data.tipo == 'visitante'
+                    && resource.data.tipo == 'visitante'
+                    && isOwnerOfApto(resource.data.apartamento);
+
+      allow delete: if request.auth != null && resource.data.tipo == 'visitante'
+                    && isOwnerOfApto(resource.data.apartamento);
+    }
+
+    match /saldos/{apartamento} {
+      allow read: if isStaff() || isOwnerOfApto(apartamento);
+      allow write: if isStaff();
+    }
+  }
+}
+```
+
+Clic en **Publicar**.
+
+### ⚠️ Otro paso obligatorio — migrar tus cuentas de portería/administrador ya existentes
+
+Las reglas nuevas verifican el rol de cada quien en una colección llamada `roles`, que antes
+no existía. Si no haces este paso, **tu cuenta de portería/administrador actual va a perder
+acceso** en cuanto publiques las reglas nuevas.
+
+1. Firebase console → Authentication → pestaña **Users**.
+2. Busca tu cuenta de portero (o administrador) y copia su **User UID** (una cadena larga de
+   letras y números — hay un ícono de copiar al lado).
+3. Ve a Firestore Database → pestaña **Data** → **"Start collection"** (o "+ Add collection"
+   si ya tienes otras).
+4. Nombre de la colección: `roles`
+5. ID del documento: pega ahí el UID que copiaste.
+6. Agrega un campo: nombre `role`, tipo `string`, valor `admin` (o `concierge` si esa cuenta es
+   solo de portería).
+7. Guarda. Repite para cada cuenta de portero/administrador que ya tengas.
+
+### Cómo registrar tu primer propietario
+
+1. Entra a la app como Administrador.
+2. Pestaña **"Apartamentos"**.
+3. Llena: número de apartamento, nombre del propietario, usuario (puede ser el mismo número
+   de apartamento, o un nombre corto — lo que sea fácil de recordar) y una contraseña de al
+   menos 6 caracteres.
+4. Guarda. Comparte ese usuario y contraseña con el propietario (por WhatsApp, en persona, etc.).
+5. El propietario entra a la misma app, elige "Propietario", y escribe ese usuario y contraseña.
+
+### Un propietario con más de un apartamento
+
+Simplemente regístralo dos veces en "Apartamentos" (una por cada número de apartamento), usando
+el **mismo usuario y la misma contraseña** las dos veces. La app detecta que ese usuario ya
+existe y vincula el nuevo apartamento a la misma cuenta — el propietario inicia sesión una sola
+vez y ve todos sus apartamentos.
+
+### Limitaciones a tener en cuenta
+
+- Borrar un apartamento desde "Apartamentos" quita el acceso de ese propietario a ESE
+  apartamento, pero **no borra su cuenta de acceso** (por seguridad, eso requiere hacerlo desde
+  Firebase console → Authentication → Users → buscar y eliminar). Si un propietario tenía solo
+  ese apartamento, después de borrarlo su usuario simplemente no podrá entrar a ningún lado
+  (sin apartamentos asignados), aunque la cuenta técnicamente siga existiendo hasta que la
+  borres allá también.
+- No hay un botón de "olvidé mi contraseña" todavía. Si un propietario la olvida, el
+  administrador debe:
+  1. Firebase console → Authentication → Users → buscar la cuenta de ese usuario → eliminarla
+     (el ícono de basura). Esto no borra sus datos de apartamento ni sus visitantes ya
+     registrados, solo su acceso.
+  2. Volver a la pestaña "Apartamentos" de la app y guardar de nuevo **cada uno** de sus
+     apartamentos con el mismo usuario y la contraseña nueva (como se explica arriba en
+     "Un propietario con más de un apartamento" — al no existir ya la cuenta vieja, se crea
+     una nueva y se vincula).
+
+
+---
+
 ## Novedades v-unif6 — Saldo Pendiente
 
 - El **Administrador** tiene una pestaña nueva, **"Saldos"** (Portería no la ve — solo consulta).
