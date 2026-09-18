@@ -488,7 +488,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif9</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif10</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -1265,13 +1265,26 @@ auth.onAuthStateChanged(async (user)=>{
         ownerAptosCache = [];
         await showOwnerRootUI();
       }else{
-        showToast(t('noRoleAssigned'));
+        alert(
+          (currentLang === 'en'
+            ? 'This account has no role assigned.\n\nUID to look up in Firestore (roles collection):\n'
+            : 'Esta cuenta no tiene un rol asignado.\n\nUID a buscar en Firestore (colección roles):\n')
+          + user.uid
+          + (currentLang === 'en'
+            ? '\n\nRole found: '
+            : '\n\nRol encontrado: ')
+          + (role === null ? (currentLang === 'en' ? '(no document / no "role" field)' : '(sin documento / sin campo "role")') : JSON.stringify(role))
+        );
         await auth.signOut();
         showRoleScreen();
       }
     }catch(e){
       console.error(e);
-      showToast(t('roleCheckFailed'));
+      alert(
+        (currentLang === 'en' ? 'Could not verify your access.\n\nUID: ' : 'No se pudo verificar tu acceso.\n\nUID: ')
+        + user.uid
+        + '\n\n' + (e.code || e.message || String(e))
+      );
       try{ await auth.signOut(); }catch(e2){}
       showRoleScreen();
     }
