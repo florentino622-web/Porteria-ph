@@ -393,6 +393,29 @@
     border-radius:8px;padding:10px 12px;font-size:13px;cursor:pointer;flex-shrink:0;
   }
   .apto-select-field{margin-bottom:14px;}
+  .owner-section-label{font-size:11.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.03em;margin:12px 0 6px;}
+  .chips-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);
+    border-radius:20px;padding:5px 6px 5px 12px;font-size:12.5px;font-family:var(--mono);color:var(--text);
+  }
+  .chip button{
+    background:rgba(239,108,126,0.15);color:var(--danger);border:none;border-radius:50%;
+    width:18px;height:18px;font-size:12px;line-height:1;cursor:pointer;
+  }
+  .chip-add{
+    background:none;border:1px dashed var(--line);color:var(--text-dim);border-radius:20px;
+    padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .auth-person-row{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--bg);border:1px solid var(--line);border-radius:9px;
+    padding:7px 10px;font-size:13px;margin-bottom:6px;
+  }
+  .auth-person-row button{
+    background:rgba(239,108,126,0.15);color:var(--danger);border:none;border-radius:50%;
+    width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;
+  }
 
   .balance-card{
     background:var(--surface);border:1px solid var(--line);border-radius:12px;
@@ -488,7 +511,7 @@
 <div id="appRoot" style="display:none;">
 <div id="app">
   <div class="masthead">
-    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif11</span></h1>
+    <h1><span data-i18n="mastheadPorteria">Portería</span> <span style="font-size:11px;font-weight:600;color:#F0A868;vertical-align:middle;">☁️ v-unif12</span></h1>
     <div class="masthead-right">
       <span class="sub" id="totalCount">— registros</span>
       <div class="masthead-prefs">
@@ -502,9 +525,8 @@
 
   <div class="tabs">
     <button class="tab active" data-tab="verify" data-i18n="tabVerify">Verificar</button>
-    <button class="tab" data-tab="list" id="registroTabBtn" data-i18n="tabRegistro">Registro</button>
     <button class="tab" data-tab="saldos" id="saldosTabBtn" data-i18n="tabSaldos">Saldos</button>
-    <button class="tab" data-tab="apartamentos" id="apartamentosTabBtn" data-i18n="tabApartamentos">Apartamentos</button>
+    <button class="tab" data-tab="apartamentos" id="apartamentosTabBtn" data-i18n="tabRegistro">Registro</button>
   </div>
 
   <section id="tab-verify" class="active">
@@ -556,12 +578,12 @@
 
   <section id="tab-apartamentos">
     <div class="pref-bar" style="justify-content:flex-start;margin-bottom:10px;">
-      <button class="pref-btn on" id="aptoModeNewBtn" data-i18n="modeNewOwner">Propietario nuevo</button>
-      <button class="pref-btn" id="aptoModeExistingBtn" data-i18n="modeExistingOwner">Agregar apto a uno existente</button>
+      <button class="pref-btn on" id="aptoModeNewBtn" data-i18n="modeRegistro">Registro</button>
+      <button class="pref-btn" id="aptoModeImportBtn" data-i18n="modeImportar">Importar</button>
     </div>
 
     <div class="card" id="aptoNewOwnerCard" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
-      <h3 id="aptoFormTitle" style="margin:0 0 14px;font-size:15px;" data-i18n="newApartmentTitle">Registrar apartamento</h3>
+      <h3 id="aptoFormTitle" style="margin:0 0 14px;font-size:15px;" data-i18n="newOwnerTitle">Registrar propietario</h3>
       <div class="field">
         <label data-i18n="apartmentLabel">Apartamento</label>
         <input type="text" class="mono" id="aptoNumero" placeholder="Ej. 502">
@@ -589,22 +611,15 @@
       </div>
     </div>
 
-    <div class="card" id="aptoExistingOwnerCard" style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
-      <h3 style="margin:0 0 14px;font-size:15px;" data-i18n="addAptoToExistingTitle">Agregar apartamento a propietario existente</h3>
-      <div class="field">
-        <label data-i18n="existingOwnerLabel">Propietario existente</label>
-        <select id="existingOwnerSelect"></select>
-        <div class="err" id="errExistingOwner" data-i18n="errExistingOwner">Selecciona un propietario.</div>
+    <div class="card" id="aptoImportCard" style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;">
+      <h3 style="margin:0 0 14px;font-size:15px;" data-i18n="importOwnersTitle">Importar propietarios desde Excel/CSV</h3>
+      <div class="hint" style="text-align:left;margin-top:0;margin-bottom:14px;" data-i18n="importOwnersHint">Columnas esperadas: apartamento, propietario_nombre, usuario, password. Úsalo una sola vez para la carga inicial, o cuando necesites agregar varios propietarios a la vez.</div>
+      <div class="import-row">
+        <button class="btn-import" id="openImportOwnersBtn" data-i18n="importOwnersBtn">Importar Excel / CSV</button>
+        <button class="btn-template" id="downloadOwnersTemplateBtn" data-i18n="downloadTemplateBtn">Descargar plantilla</button>
       </div>
-      <div class="field">
-        <label data-i18n="apartmentLabel">Nuevo apartamento</label>
-        <input type="text" class="mono" id="existingAptoNumero" placeholder="Ej. 503">
-        <div class="err" id="errExistingAptoNumero" data-i18n="errAptoNumero">Escribe el número de apartamento.</div>
-      </div>
-      <div class="hint" style="text-align:left;margin-top:0;" data-i18n="existingOwnerHint">No hace falta usuario ni contraseña — se vincula directo a la cuenta que ya tiene.</div>
-      <div class="sheet-actions" style="margin-top:12px;">
-        <button class="btn-save" id="existingAptoSaveBtn" style="width:100%;" data-i18n="linkApartmentBtn">Vincular apartamento</button>
-      </div>
+      <input type="file" id="ownersFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
+      <div id="ownersImportSummary"></div>
     </div>
 
     <div id="apartamentosList"></div>
@@ -634,6 +649,76 @@
     <div class="sheet-actions">
       <button class="btn-cancel" id="secCancelBtn" data-i18n="cancelBtn">Cancelar</button>
       <button class="btn-save" id="secSaveBtn" data-i18n="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="addAptoOverlay">
+  <div class="sheet">
+    <h2 data-i18n="linkApartmentTitle">Agregar apartamento</h2>
+    <div class="hint" style="text-align:left;margin-top:0;" id="addAptoOwnerHint"></div>
+    <div class="field">
+      <label data-i18n="apartmentLabel">Apartamento</label>
+      <input type="text" class="mono" id="addAptoNumero" placeholder="Ej. 503">
+      <div class="err" id="errAddAptoNumero" data-i18n="errAptoNumero">Escribe el número de apartamento.</div>
+    </div>
+    <input type="hidden" id="addAptoUid">
+    <input type="hidden" id="addAptoNombre">
+    <input type="hidden" id="addAptoUsuario">
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="addAptoCancelBtn" data-i18n="cancelBtn">Cancelar</button>
+      <button class="btn-save" id="addAptoSaveBtn" data-i18n="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="addAuthOverlay">
+  <div class="sheet">
+    <h2 data-i18n="addAuthorizedTitle">Agregar persona autorizada</h2>
+    <div class="hint" style="text-align:left;margin-top:0;" data-i18n="addAuthorizedHint">Familiares, amistades o personal de confianza que el propietario autoriza a ingresar. Queda visible para portería al verificar por cédula.</div>
+    <div class="field" id="addAuthAptoField" style="display:none;">
+      <label data-i18n="apartmentLabel">Apartamento</label>
+      <select id="addAuthApto"></select>
+    </div>
+    <div class="field">
+      <label data-i18n="fullNameLabel">Nombre completo</label>
+      <input type="text" id="addAuthNombre" placeholder="Nombre y apellido">
+      <div class="err" id="errAddAuthNombre" data-i18n="errAptoNombre">Escribe el nombre.</div>
+    </div>
+    <div class="field">
+      <label data-i18n="cedulaLabel">Cédula</label>
+      <input type="text" class="mono" id="addAuthCedula" inputmode="numeric" placeholder="Número de identificación">
+      <div class="err" id="errAddAuthCedula" data-i18n="errCedulaGeneric">Escribe la cédula.</div>
+    </div>
+    <div class="field">
+      <label data-i18n="relationLabel">Relación</label>
+      <select id="addAuthRelacion">
+        <option value="familiar" data-i18n="relFamiliar">Familiar</option>
+        <option value="amistad" data-i18n="relAmistad">Amistad</option>
+        <option value="confianza" data-i18n="relConfianza">Personal de confianza</option>
+      </select>
+    </div>
+    <input type="hidden" id="addAuthUid">
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="addAuthCancelBtn" data-i18n="cancelBtn">Cancelar</button>
+      <button class="btn-save" id="addAuthSaveBtn" data-i18n="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="editOwnerOverlay">
+  <div class="sheet">
+    <h2 data-i18n="editOwnerTitle">Editar propietario</h2>
+    <div class="field">
+      <label data-i18n="ownerNameLabel">Nombre del propietario principal</label>
+      <input type="text" id="editOwnerNombre" placeholder="Nombre y apellido">
+      <div class="err" id="errEditOwnerNombre" data-i18n="errAptoNombre">Escribe el nombre del propietario.</div>
+    </div>
+    <div class="hint" style="text-align:left;margin-top:0;" data-i18n="editOwnerHint">El usuario y la contraseña no se pueden cambiar aquí. Para restablecer la contraseña, elimina la cuenta en Firebase Authentication y vuelve a registrar sus apartamentos con el mismo usuario.</div>
+    <input type="hidden" id="editOwnerUid">
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="editOwnerCancelBtn" data-i18n="cancelBtn">Cancelar</button>
+      <button class="btn-save" id="editOwnerSaveBtn" data-i18n="saveBtn">Guardar</button>
     </div>
   </div>
 </div>
@@ -1006,7 +1091,42 @@ const I18N = {
     secondaryTag: 'Secundario',
     principalTag: 'Principal',
     secondaryAdded: 'Propietario secundario agregado.',
-    secondaryCannotAdd: 'Tu cuenta es propietario secundario. Puedes ver los visitantes y el saldo, pero registrar nuevos visitantes solo lo puede hacer el propietario principal.'
+    secondaryCannotAdd: 'Tu cuenta es propietario secundario. Puedes ver los visitantes y el saldo, pero registrar nuevos visitantes solo lo puede hacer el propietario principal.',
+    modeRegistro: 'Registro',
+    modeImportar: 'Importar',
+    newOwnerTitle: 'Registrar propietario',
+    importOwnersTitle: 'Importar propietarios desde Excel/CSV',
+    importOwnersHint: 'Columnas esperadas: apartamento, propietario_nombre, usuario, password. Úsalo una sola vez para la carga inicial, o cuando necesites agregar varios propietarios a la vez.',
+    importOwnersBtn: 'Importar Excel / CSV',
+    downloadTemplateBtn: 'Descargar plantilla',
+    apartmentsSectionLabel: 'Apartamentos',
+    addApartmentBtn: '+ agregar apartamento',
+    authorizedSectionLabel: 'Personas autorizadas',
+    addAuthorizedBtn: '+ agregar persona autorizada',
+    noAuthorizedPeople: 'Sin personas autorizadas todavía.',
+    confirmRemoveApto: '¿Quitar este apartamento del propietario?',
+    confirmRemoveAuth: '¿Quitar a esta persona autorizada?',
+    authorizedRemoved: 'Persona autorizada eliminada.',
+    confirmDeleteOwner: '¿Eliminar este propietario? Se borrarán todos sus apartamentos y personas autorizadas. Esto no elimina su cuenta de acceso (hazlo desde Firebase Authentication si quieres bloquearlo por completo).',
+    ownerDeleted: 'Propietario eliminado.',
+    linkApartmentTitle: 'Agregar apartamento',
+    addAuthorizedTitle: 'Agregar persona autorizada',
+    addAuthorizedHint: 'Familiares, amistades o personal de confianza que el propietario autoriza a ingresar. Queda visible para portería al verificar por cédula.',
+    relationLabel: 'Relación',
+    relFamiliar: 'Familiar',
+    relAmistad: 'Amistad',
+    relConfianza: 'Personal de confianza',
+    rel_familiar: 'Familiar',
+    rel_amistad: 'Amistad',
+    rel_confianza: 'Personal de confianza',
+    errCedulaGeneric: 'Escribe la cédula.',
+    editOwnerTitle: 'Editar propietario',
+    editOwnerHint: 'El usuario y la contraseña no se pueden cambiar aquí. Para restablecer la contraseña, elimina la cuenta en Firebase Authentication y vuelve a registrar sus apartamentos con el mismo usuario.',
+    ownerUpdated: 'Propietario actualizado.',
+    importingWait: 'Importando, un momento...',
+    processedLabel: 'Procesados',
+    withErrorsLabel: 'Con error',
+    authorizedAdded: 'Persona autorizada agregada.'
   },
   en: {
     appTitle: '🏖️ El Palmar Residences',
@@ -1130,7 +1250,42 @@ const I18N = {
     secondaryTag: 'Secondary',
     principalTag: 'Main',
     secondaryAdded: 'Secondary owner added.',
-    secondaryCannotAdd: 'Your account is a secondary owner. You can view visitors and the balance, but only the main owner can register new visitors.'
+    secondaryCannotAdd: 'Your account is a secondary owner. You can view visitors and the balance, but only the main owner can register new visitors.',
+    modeRegistro: 'Register',
+    modeImportar: 'Import',
+    newOwnerTitle: 'Register owner',
+    importOwnersTitle: 'Import owners from Excel/CSV',
+    importOwnersHint: 'Expected columns: apartamento, propietario_nombre, usuario, password. Use it once for initial setup, or whenever you need to add several owners at once.',
+    importOwnersBtn: 'Import Excel / CSV',
+    downloadTemplateBtn: 'Download template',
+    apartmentsSectionLabel: 'Apartments',
+    addApartmentBtn: '+ add apartment',
+    authorizedSectionLabel: 'Authorized people',
+    addAuthorizedBtn: '+ add authorized person',
+    noAuthorizedPeople: 'No authorized people yet.',
+    confirmRemoveApto: 'Remove this apartment from the owner?',
+    confirmRemoveAuth: 'Remove this authorized person?',
+    authorizedRemoved: 'Authorized person removed.',
+    confirmDeleteOwner: "Delete this owner? All their apartments and authorized people will be removed. This does not delete their access account (do that from Firebase Authentication if you want to fully block them).",
+    ownerDeleted: 'Owner deleted.',
+    linkApartmentTitle: 'Add apartment',
+    addAuthorizedTitle: 'Add authorized person',
+    addAuthorizedHint: "Family, friends, or trusted staff the owner authorizes to enter. Visible to the front desk when checking by ID.",
+    relationLabel: 'Relationship',
+    relFamiliar: 'Family',
+    relAmistad: 'Friend',
+    relConfianza: 'Trusted staff',
+    rel_familiar: 'Family',
+    rel_amistad: 'Friend',
+    rel_confianza: 'Trusted staff',
+    errCedulaGeneric: 'Enter the ID number.',
+    editOwnerTitle: 'Edit owner',
+    editOwnerHint: "Username and password can't be changed here. To reset a password, delete the account in Firebase Authentication and re-register their apartments with the same username.",
+    ownerUpdated: 'Owner updated.',
+    importingWait: 'Importing, one moment...',
+    processedLabel: 'Processed',
+    withErrorsLabel: 'With errors',
+    authorizedAdded: 'Authorized person added.'
   }
 };
 
@@ -1203,6 +1358,7 @@ let unsubscribeSaldos = null;
 let lastSaldos = {};
 let unsubscribeAdminSaldos = null;
 let unsubscribeAdminApartamentos = null;
+let unsubscribeAdminAutorizadas = null;
 const ROLE_KEY = 'app-role';
 let ownerAptosCache = []; // TODOS los apartamentos (principal + secundario), verificados en Firestore
 let ownerPrincipalAptosCache = []; // solo donde es principal (puede registrar visitantes)
@@ -1386,6 +1542,7 @@ auth.onAuthStateChanged(async (user)=>{
     if(unsubscribeSaldos){ unsubscribeSaldos(); unsubscribeSaldos = null; }
     if(unsubscribeAdminSaldos){ unsubscribeAdminSaldos(); unsubscribeAdminSaldos = null; }
     if(unsubscribeAdminApartamentos){ unsubscribeAdminApartamentos(); unsubscribeAdminApartamentos = null; }
+    if(unsubscribeAdminAutorizadas){ unsubscribeAdminAutorizadas(); unsubscribeAdminAutorizadas = null; }
     ownerAptosCache = [];
   }
 });
@@ -1464,11 +1621,9 @@ async function deletePersonaRemote(cedula){
 }
 
 function applyStaffRoleUI(role){
-  const registroBtn = $('registroTabBtn');
   const saldosBtn = $('saldosTabBtn');
   const apartamentosBtn = $('apartamentosTabBtn');
   if(role === 'concierge'){
-    registroBtn.style.display = 'none';
     saldosBtn.style.display = 'none';
     apartamentosBtn.style.display = 'none';
     // Asegurar que la pestaña activa sea "Verificar"
@@ -1477,7 +1632,6 @@ function applyStaffRoleUI(role){
     document.querySelector('.tab[data-tab="verify"]').classList.add('active');
     $('tab-verify').classList.add('active');
   }else{
-    registroBtn.style.display = '';
     saldosBtn.style.display = '';
     apartamentosBtn.style.display = '';
     startAdminSaldosListener();
@@ -1490,53 +1644,109 @@ let editingSaldoApto = null;
 
 // ---- Gestión de apartamentos y propietarios (Administrador) ----
 let lastApartamentosList = [];
+let lastPersonasAutorizadas = [];
 
 function startAdminApartamentosListener(){
   if(unsubscribeAdminApartamentos) return;
   unsubscribeAdminApartamentos = apartamentosRef.onSnapshot((snapshot)=>{
-    const aptos = snapshot.docs.map(d => ({ numero: d.id, ...d.data() }));
-    lastApartamentosList = aptos;
-    renderApartamentosList(aptos);
-    populateExistingOwnerSelect(aptos);
+    lastApartamentosList = snapshot.docs.map(d => ({ numero: d.id, ...d.data() }));
+    renderApartamentosList();
+  }, (err)=>{
+    console.error(err);
+  });
+  unsubscribeAdminAutorizadas = personasRef.where('tipo', '==', 'inquilino').onSnapshot((snapshot)=>{
+    lastPersonasAutorizadas = snapshot.docs.map(d => ({ cedula: d.id, ...d.data() }));
+    renderApartamentosList();
   }, (err)=>{
     console.error(err);
   });
 }
 
-function renderApartamentosList(aptos){
+function groupApartamentosByOwner(aptos){
+  const map = new Map();
+  aptos.forEach(a=>{
+    if(!a.uid) return;
+    if(!map.has(a.uid)){
+      map.set(a.uid, { uid: a.uid, nombre: a.propietario_nombre, usuario: a.usuario, apartamentos: [], secundarios: [] });
+    }
+    const g = map.get(a.uid);
+    g.apartamentos.push(a.numero);
+    (a.secundarios || []).forEach(s=>{
+      if(!g.secundarios.some(x=>x.uid === s.uid)) g.secundarios.push(s);
+    });
+  });
+  return Array.from(map.values()).sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
+}
+
+function renderApartamentosList(){
   const box = $('apartamentosList');
-  if(!aptos.length){
+  const owners = groupApartamentosByOwner(lastApartamentosList);
+  if(!owners.length){
     box.innerHTML = `<div class="empty-hint">${t('emptyApartamentos')}</div>`;
     return;
   }
-  aptos.sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
-  box.innerHTML = aptos.map(a => {
-    const secundarios = a.secundarios || [];
-    const secundariosHtml = secundarios.length
-      ? secundarios.map(s => `<div class="person-meta">↳ ${escapeHtml(s.nombre)} (${escapeHtml(s.usuario)}) · <span data-i18n="secondaryTag">${t('secondaryTag')}</span></div>`).join('')
+  box.innerHTML = owners.map(o => {
+    const aptoChips = o.apartamentos.sort((a,b)=> a.localeCompare(b, undefined, {numeric:true})).map(numero =>
+      `<span class="chip">${escapeHtml(numero)} <button data-removeapto="${escapeHtml(o.uid)}|${escapeHtml(numero)}" title="${t('deleteBtn')}">✕</button></span>`
+    ).join('');
+    const secundariosHtml = o.secundarios.length
+      ? o.secundarios.map(s => `<div class="person-meta">↳ ${escapeHtml(s.nombre)} (${escapeHtml(s.usuario)}) · ${t('secondaryTag')}</div>`).join('')
       : '';
+    const personasAutorizadas = lastPersonasAutorizadas.filter(p => o.apartamentos.includes(p.apartamento));
+    const authRows = personasAutorizadas.length
+      ? personasAutorizadas.map(p => `
+          <div class="auth-person-row">
+            <span>${escapeHtml(p.nombre)} · ${escapeHtml(p.apartamento)} ${p.relacion ? '· ' + escapeHtml(t('rel_' + p.relacion) || p.relacion) : ''}</span>
+            <button data-removeauth="${escapeHtml(p.cedula)}" title="${t('deleteBtn')}">✕</button>
+          </div>`).join('')
+      : `<div class="person-meta">${t('noAuthorizedPeople')}</div>`;
+
     return `
     <div class="person-card">
       <div class="person-top">
         <div class="person-info">
-          <div class="person-name">${t('apartmentLabel')} ${escapeHtml(a.numero)}</div>
-          <div class="person-meta">${escapeHtml(a.propietario_nombre || '')} · <span style="color:var(--accent-owner);">${t('principalTag')}</span></div>
-          <div class="person-meta">${t('usernameLabel')}: ${escapeHtml(a.usuario || '')}</div>
+          <div class="person-name">${escapeHtml(o.nombre || o.usuario)}</div>
+          <div class="person-meta">${t('usernameLabel')}: ${escapeHtml(o.usuario || '')}</div>
           ${secundariosHtml}
         </div>
       </div>
-      <div class="person-actions">
-        <button data-addsec="${escapeHtml(a.numero)}">${t('addSecondaryBtn')}</button>
-        <button class="danger" data-delapto="${escapeHtml(a.numero)}">${t('deleteBtn')}</button>
+
+      <div class="owner-section-label">${t('apartmentsSectionLabel')}</div>
+      <div class="chips-row">
+        ${aptoChips}
+        <button class="chip-add" data-addapto="${escapeHtml(o.uid)}|${escapeHtml(o.nombre||'')}|${escapeHtml(o.usuario||'')}">${t('addApartmentBtn')}</button>
+      </div>
+
+      <div class="owner-section-label">${t('authorizedSectionLabel')}</div>
+      ${authRows}
+      <button class="chip-add" data-addauth="${escapeHtml(o.uid)}|${o.apartamentos.map(escapeHtml).join(',')}">${t('addAuthorizedBtn')}</button>
+
+      <div class="person-actions" style="margin-top:12px;">
+        <button data-addsec="${escapeHtml(o.apartamentos[0] || '')}">${t('addSecondaryBtn')}</button>
+        <button data-editowner="${escapeHtml(o.uid)}|${escapeHtml(o.nombre||'')}">${t('editBtn')}</button>
+        <button class="danger" data-delowner="${escapeHtml(o.uid)}|${o.apartamentos.map(escapeHtml).join(',')}">${t('deleteBtn')}</button>
       </div>
     </div>`;
   }).join('');
 
-  box.querySelectorAll('[data-delapto]').forEach(b=>{
+  box.querySelectorAll('[data-removeapto]').forEach(b=>{
     b.addEventListener('click', async ()=>{
+      const [uid, numero] = b.dataset.removeapto.split('|');
+      if(!confirm(t('confirmRemoveApto'))) return;
       try{
-        await apartamentosRef.doc(b.dataset.delapto).delete();
+        await apartamentosRef.doc(numero).delete();
         showToast(t('apartmentDeleted'));
+      }catch(e){
+        showToast('Error: ' + (e.code || e.message));
+      }
+    });
+  });
+  box.querySelectorAll('[data-removeauth]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      if(!confirm(t('confirmRemoveAuth'))) return;
+      try{
+        await personasRef.doc(b.dataset.removeauth).delete();
+        showToast(t('authorizedRemoved'));
       }catch(e){
         showToast('Error: ' + (e.code || e.message));
       }
@@ -1544,6 +1754,39 @@ function renderApartamentosList(aptos){
   });
   box.querySelectorAll('[data-addsec]').forEach(b=>{
     b.addEventListener('click', ()=> openSecundarioOverlay(b.dataset.addsec));
+  });
+  box.querySelectorAll('[data-addapto]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const [uid, nombre, usuario] = b.dataset.addapto.split('|');
+      openAddAptoOverlay(uid, nombre, usuario);
+    });
+  });
+  box.querySelectorAll('[data-addauth]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const [uid, aptosCsv] = b.dataset.addauth.split('|');
+      openAddAuthOverlay(uid, aptosCsv ? aptosCsv.split(',') : []);
+    });
+  });
+  box.querySelectorAll('[data-editowner]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const [uid, nombre] = b.dataset.editowner.split('|');
+      openEditOwnerOverlay(uid, nombre);
+    });
+  });
+  box.querySelectorAll('[data-delowner]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const [uid, aptosCsv] = b.dataset.delowner.split('|');
+      const aptosDelOwner = aptosCsv ? aptosCsv.split(',') : [];
+      if(!confirm(t('confirmDeleteOwner'))) return;
+      try{
+        await Promise.all(aptosDelOwner.map(numero => apartamentosRef.doc(numero).delete()));
+        const autorizadasDelOwner = lastPersonasAutorizadas.filter(p => aptosDelOwner.includes(p.apartamento));
+        await Promise.all(autorizadasDelOwner.map(p => personasRef.doc(p.cedula).delete()));
+        showToast(t('ownerDeleted'));
+      }catch(e){
+        showToast('Error: ' + (e.code || e.message));
+      }
+    });
   });
 }
 
@@ -1623,67 +1866,225 @@ $('aptoSaveBtn').addEventListener('click', async ()=>{
   $('aptoSaveBtn').textContent = t('saveApartmentBtn');
 });
 
-// ---- Modo: agregar apartamento a un propietario ya existente ----
+// ---- Modo: Registro / Importar ----
 $('aptoModeNewBtn').addEventListener('click', ()=>{
   $('aptoModeNewBtn').classList.add('on');
-  $('aptoModeExistingBtn').classList.remove('on');
+  $('aptoModeImportBtn').classList.remove('on');
   $('aptoNewOwnerCard').style.display = 'block';
-  $('aptoExistingOwnerCard').style.display = 'none';
+  $('aptoImportCard').style.display = 'none';
 });
-$('aptoModeExistingBtn').addEventListener('click', ()=>{
-  $('aptoModeExistingBtn').classList.add('on');
+$('aptoModeImportBtn').addEventListener('click', ()=>{
+  $('aptoModeImportBtn').classList.add('on');
   $('aptoModeNewBtn').classList.remove('on');
-  $('aptoExistingOwnerCard').style.display = 'block';
+  $('aptoImportCard').style.display = 'block';
   $('aptoNewOwnerCard').style.display = 'none';
 });
 
-function populateExistingOwnerSelect(aptos){
-  const select = $('existingOwnerSelect');
-  const seen = new Map(); // usuario -> {nombre, usuario, uid}
-  aptos.forEach(a=>{
-    if(a.usuario && !seen.has(a.usuario)){
-      seen.set(a.usuario, { nombre: a.propietario_nombre, usuario: a.usuario, uid: a.uid });
-    }
-  });
-  const owners = Array.from(seen.values()).sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||''));
-  if(!owners.length){
-    select.innerHTML = `<option value="">${t('noExistingOwners')}</option>`;
-    return;
+// ---- Importar propietarios desde Excel/CSV ----
+$('openImportOwnersBtn').addEventListener('click', ()=> $('ownersFileInput').click());
+
+$('downloadOwnersTemplateBtn').addEventListener('click', ()=>{
+  const csv = 'apartamento,propietario_nombre,usuario,password\n' +
+    '502,Juana Pérez,juana502,clave123\n' +
+    '503,Carlos Gómez,carlos503,clave456\n';
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'plantilla-propietarios.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+$('ownersFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, {type:'array', cellDates:true});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+    await processImportedOwners(rows);
+  }catch(err){
+    showToast('No se pudo leer el archivo.');
   }
-  select.innerHTML = owners.map(o=>
-    `<option value="${escapeHtml(o.uid)}" data-usuario="${escapeHtml(o.usuario)}" data-nombre="${escapeHtml(o.nombre||'')}">${escapeHtml(o.nombre || o.usuario)} (${escapeHtml(o.usuario)})</option>`
-  ).join('');
+  $('ownersFileInput').value = '';
+});
+
+async function processImportedOwners(rows){
+  const OWNER_KEY_MAP = {
+    apartamento:'apartamento', apto:'apartamento',
+    propietarionombre:'propietario_nombre', propietario:'propietario_nombre', nombre:'propietario_nombre',
+    usuario:'usuario', password:'password', contrasena:'password', contraseña:'password'
+  };
+  let added = 0, updated = 0;
+  const errores = [];
+  $('ownersImportSummary').innerHTML = `<div class="import-report">${t('importingWait')}</div>`;
+
+  for(let i = 0; i < rows.length; i++){
+    const row = rows[i];
+    const mapped = {};
+    Object.keys(row).forEach(rawKey=>{
+      const norm = normalizeKey(rawKey);
+      const field = OWNER_KEY_MAP[norm];
+      if(field) mapped[field] = row[rawKey];
+    });
+    const numero = String(mapped.apartamento || '').trim();
+    const nombre = String(mapped.propietario_nombre || '').trim();
+    const usuario = String(mapped.usuario || '').trim().toLowerCase();
+    const password = String(mapped.password || '').trim();
+    const fila = i + 2;
+
+    if(!numero || !nombre || !usuario || !password || password.length < 6){
+      errores.push(`Fila ${fila}: faltan datos o la contraseña tiene menos de 6 caracteres.`);
+      continue;
+    }
+
+    try{
+      const email = usernameToEmail(usuario);
+      let uid;
+      try{
+        const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+        uid = cred.user.uid;
+        await secondaryAuth.signOut();
+      }catch(createErr){
+        if(createErr.code === 'auth/email-already-in-use'){
+          const existing = await apartamentosRef.where('usuario', '==', usuario).limit(1).get();
+          if(existing.empty){
+            errores.push(`Fila ${fila}: el usuario "${usuario}" ya existe pero no se encontró su apartamento.`);
+            continue;
+          }
+          uid = existing.docs[0].data().uid;
+          updated++;
+        }else{
+          throw createErr;
+        }
+      }
+      if(!updated || uid) added++;
+      await apartamentosRef.doc(numero).set({ propietario_nombre: nombre, usuario, uid });
+      await rolesRef.doc(uid).set({ role: 'owner' }, { merge: true });
+    }catch(rowErr){
+      errores.push(`Fila ${fila}: ${rowErr.code || rowErr.message}`);
+    }
+  }
+
+  const errList = errores.length
+    ? `<ul>${errores.slice(0,8).map(e=>`<li>${escapeHtml(e)}</li>`).join('')}${errores.length>8 ? `<li>y ${errores.length-8} más...</li>` : ''}</ul>`
+    : '';
+  $('ownersImportSummary').innerHTML = `
+    <div class="import-report">
+      <div class="line ok-line"><span>${t('processedLabel')}</span><span>${added}</span></div>
+      ${errores.length ? `<div class="line err-line"><span>${t('withErrorsLabel')}</span><span>${errores.length}</span></div>${errList}` : ''}
+    </div>`;
 }
 
-function clearExistingErrors(){
-  ['errExistingOwner','errExistingAptoNumero'].forEach(id=>$(id).classList.remove('show'));
+// ---- Agregar apartamento a un propietario ya existente (desde su tarjeta) ----
+function openAddAptoOverlay(uid, nombre, usuario){
+  $('addAptoUid').value = uid;
+  $('addAptoNombre').value = nombre;
+  $('addAptoUsuario').value = usuario;
+  $('addAptoNumero').value = '';
+  $('errAddAptoNumero').classList.remove('show');
+  $('addAptoOwnerHint').textContent = `${nombre || usuario} (${usuario})`;
+  $('addAptoOverlay').classList.add('open');
 }
+$('addAptoCancelBtn').addEventListener('click', ()=> $('addAptoOverlay').classList.remove('open'));
+$('addAptoOverlay').addEventListener('click', (e)=>{ if(e.target === $('addAptoOverlay')) $('addAptoOverlay').classList.remove('open'); });
 
-$('existingAptoSaveBtn').addEventListener('click', async ()=>{
-  clearExistingErrors();
-  const select = $('existingOwnerSelect');
-  const opt = select.options[select.selectedIndex];
-  const numero = $('existingAptoNumero').value.trim();
-
-  let hasError = false;
-  if(!opt || !opt.value){ $('errExistingOwner').classList.add('show'); hasError = true; }
-  if(!numero){ $('errExistingAptoNumero').classList.add('show'); hasError = true; }
-  if(hasError) return;
-
-  $('existingAptoSaveBtn').disabled = true;
+$('addAptoSaveBtn').addEventListener('click', async ()=>{
+  $('errAddAptoNumero').classList.remove('show');
+  const numero = $('addAptoNumero').value.trim();
+  if(!numero){ $('errAddAptoNumero').classList.add('show'); return; }
+  $('addAptoSaveBtn').disabled = true;
   try{
     await apartamentosRef.doc(numero).set({
-      propietario_nombre: opt.dataset.nombre,
-      usuario: opt.dataset.usuario,
-      uid: opt.value
+      propietario_nombre: $('addAptoNombre').value,
+      usuario: $('addAptoUsuario').value,
+      uid: $('addAptoUid').value
     });
     showToast(t('apartmentSaved'));
-    $('existingAptoNumero').value = '';
+    $('addAptoOverlay').classList.remove('open');
   }catch(e){
-    console.error(e);
     showToast('Error: ' + (e.code || e.message));
   }
-  $('existingAptoSaveBtn').disabled = false;
+  $('addAptoSaveBtn').disabled = false;
+});
+
+// ---- Agregar persona autorizada ----
+function openAddAuthOverlay(uid, aptos){
+  $('addAuthUid').value = uid;
+  $('addAuthNombre').value = '';
+  $('addAuthCedula').value = '';
+  $('addAuthRelacion').value = 'familiar';
+  ['errAddAuthNombre','errAddAuthCedula'].forEach(id=>$(id).classList.remove('show'));
+  const field = $('addAuthAptoField');
+  const select = $('addAuthApto');
+  if(aptos.length > 1){
+    select.innerHTML = aptos.map(a=>`<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+    field.style.display = 'block';
+  }else{
+    select.innerHTML = aptos.map(a=>`<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+    field.style.display = 'none';
+  }
+  $('addAuthOverlay').classList.add('open');
+}
+$('addAuthCancelBtn').addEventListener('click', ()=> $('addAuthOverlay').classList.remove('open'));
+$('addAuthOverlay').addEventListener('click', (e)=>{ if(e.target === $('addAuthOverlay')) $('addAuthOverlay').classList.remove('open'); });
+
+$('addAuthSaveBtn').addEventListener('click', async ()=>{
+  ['errAddAuthNombre','errAddAuthCedula'].forEach(id=>$(id).classList.remove('show'));
+  const nombre = $('addAuthNombre').value.trim();
+  const cedula = $('addAuthCedula').value.trim().replace(/\s+/g,'');
+  const relacion = $('addAuthRelacion').value;
+  const apartamento = $('addAuthApto').value;
+
+  let hasError = false;
+  if(!nombre){ $('errAddAuthNombre').classList.add('show'); hasError = true; }
+  if(!cedula){ $('errAddAuthCedula').classList.add('show'); hasError = true; }
+  if(hasError) return;
+
+  $('addAuthSaveBtn').disabled = true;
+  try{
+    await personasRef.doc(cedula).set({
+      nombre, apartamento, tipo: 'inquilino', relacion,
+      autorizado_por_uid: $('addAuthUid').value,
+      foto: null, descripcion: null
+    }, { merge: true });
+    showToast(t('authorizedAdded'));
+    $('addAuthOverlay').classList.remove('open');
+  }catch(e){
+    showToast('Error: ' + (e.code || e.message));
+  }
+  $('addAuthSaveBtn').disabled = false;
+});
+
+// ---- Editar propietario (nombre) ----
+function openEditOwnerOverlay(uid, nombre){
+  $('editOwnerUid').value = uid;
+  $('editOwnerNombre').value = nombre;
+  $('errEditOwnerNombre').classList.remove('show');
+  $('editOwnerOverlay').classList.add('open');
+}
+$('editOwnerCancelBtn').addEventListener('click', ()=> $('editOwnerOverlay').classList.remove('open'));
+$('editOwnerOverlay').addEventListener('click', (e)=>{ if(e.target === $('editOwnerOverlay')) $('editOwnerOverlay').classList.remove('open'); });
+
+$('editOwnerSaveBtn').addEventListener('click', async ()=>{
+  $('errEditOwnerNombre').classList.remove('show');
+  const uid = $('editOwnerUid').value;
+  const nombre = $('editOwnerNombre').value.trim();
+  if(!nombre){ $('errEditOwnerNombre').classList.add('show'); return; }
+  $('editOwnerSaveBtn').disabled = true;
+  try{
+    const aptosDeEsteOwner = lastApartamentosList.filter(a => a.uid === uid);
+    await Promise.all(aptosDeEsteOwner.map(a => apartamentosRef.doc(a.numero).set({ propietario_nombre: nombre }, { merge: true })));
+    showToast(t('ownerUpdated'));
+    $('editOwnerOverlay').classList.remove('open');
+  }catch(e){
+    showToast('Error: ' + (e.code || e.message));
+  }
+  $('editOwnerSaveBtn').disabled = false;
 });
 
 // ---- Propietarios secundarios ----
